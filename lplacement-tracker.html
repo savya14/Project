@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Placement Tracker — Day by Day</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  /* ── LIGHT MODE (default) ── */
+  :root {
+    --bg:        #f7f6f2;
+    --bg2:       #ffffff;
+    --bg3:       #f0ede8;
+    --card:      #ffffff;
+    --border:    #e8e4dc;
+    --borderhi:  #d4cfc5;
+    --text:      #1a1a18;
+    --textmid:   #6b6860;
+    --textdim:   #a8a49c;
+
+    --mint:      #16a34a;
+    --mint-bg:   #f0fdf4;
+    --mint-bdr:  #bbf7d0;
+    --mint-txt:  #15803d;
+
+    --sky:       #0369a1;
+    --sky-bg:    #f0f9ff;
+    --sky-bdr:   #bae6fd;
+    --sky-txt:   #0c4a6e;
+
+    --orange:    #c2410c;
+    --orange-bg: #fff7ed;
+    --orange-bdr:#fed7aa;
+    --orange-txt:#9a3412;
+
+    --violet:    #7c3aed;
+    --violet-bg: #f5f3ff;
+    --violet-bdr:#ddd6fe;
+    --violet-txt:#5b21b6;
+
+    --amber:     #b45309;
+    --amber-bg:  #fffbeb;
+    --amber-bdr: #fde68a;
+
+    --done-bg:   #f0fdf4;
+    --done-bdr:  #86efac;
+    --done-text: #166534;
+
+    --shadow:    0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
+  }
+
+  /* ── DARK MODE ── */
+  html.dark {
+    --bg:        #07090e;
+    --bg2:       #0f1520;
+    --bg3:       #111822;
+    --card:      #0f1520;
+    --border:    rgba(255,255,255,0.07);
+    --borderhi:  rgba(255,255,255,0.14);
+    --text:      #e2e8f0;
+    --textmid:   #94a3b8;
+    --textdim:   #475569;
+
+    --mint:      #3ecf8e;
+    --mint-bg:   rgba(62,207,142,0.1);
+    --mint-bdr:  rgba(62,207,142,0.3);
+    --mint-txt:  #3ecf8e;
+
+    --sky:       #38bdf8;
+    --sky-bg:    rgba(56,189,248,0.1);
+    --sky-bdr:   rgba(56,189,248,0.3);
+    --sky-txt:   #38bdf8;
+
+    --orange:    #fb923c;
+    --orange-bg: rgba(249,115,22,0.1);
+    --orange-bdr:rgba(249,115,22,0.3);
+    --orange-txt:#fb923c;
+
+    --violet:    #a78bfa;
+    --violet-bg: rgba(167,139,250,0.1);
+    --violet-bdr:rgba(167,139,250,0.3);
+    --violet-txt:#a78bfa;
+
+    --amber:     #fbbf24;
+    --amber-bg:  rgba(251,191,36,0.08);
+    --amber-bdr: rgba(251,191,36,0.25);
+
+    --done-bg:   rgba(62,207,142,0.07);
+    --done-bdr:  rgba(62,207,142,0.25);
+    --done-text: #3ecf8e;
+
+    --shadow:    0 1px 3px rgba(0,0,0,0.3);
+    --shadow-md: 0 4px 16px rgba(0,0,0,0.5);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* animated gradient background — only in dark mode */
+  @keyframes gradShift {
+    0%   { background-position: 0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    color: var(--text);
+    min-height: 100vh;
+    background: var(--bg);
+    transition: background .35s, color .35s;
+  }
+
+  /* Light mode — full page fixed grid */
+  html:not(.dark) body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(rgba(0,0,0,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,0,0,0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  /* ── DARK MODE animated gradient body ── */
+  html.dark body {
+    background: #060b14;
+  }
+
+  /* Single unified grid for the whole page in dark mode — no separate header grid */
+  html.dark body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(rgba(56,189,248,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(56,189,248,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  html.dark body::after {
+    content: ''; position: fixed; top: -20%; left: 30%; transform: translateX(-50%);
+    width: 800px; height: 600px;
+    background: radial-gradient(ellipse, rgba(62,207,142,0.04) 0%, transparent 65%);
+    pointer-events: none;
+    z-index: -1;
+    animation: glowPulse 8s ease-in-out infinite;
+  }
+
+  @keyframes glowPulse {
+    0%, 100% { opacity: 0.6; transform: translateX(-50%) scale(1); }
+    50%       { opacity: 1;   transform: translateX(-50%) scale(1.08); }
+  }
+
+  /* ── HEADER — theme-aware ── */
+  header {
+    --hdr-bg:       transparent;
+    --hdr-border:   rgba(255,255,255,0.07);
+    --hdr-grid:     transparent;
+    --hdr-glow:     rgba(62,207,142,0.07);
+    --hdr-eyebrow:  #3ecf8e;
+    --hdr-h1:       #e2e8f0;
+    --hdr-sub:      #94a3b8;
+    --hdr-stat:     #e2e8f0;
+    --hdr-statlbl:  #475569;
+    --hdr-divider:  rgba(255,255,255,0.07);
+    --hdr-statdiv:  rgba(255,255,255,0.08);
+    --hdr-ring-bg:  rgba(255,255,255,0.1);
+    --hdr-ring-lbl: #475569;
+    --hdr-wks:      #475569;
+  }
+
+  /* Light mode header overrides */
+  html:not(.dark) header {
+    --hdr-bg:       transparent;
+    --hdr-border:   #e8e4dc;
+    --hdr-grid:     transparent;
+    --hdr-glow:     rgba(22,163,74,0.05);
+    --hdr-eyebrow:  #16a34a;
+    --hdr-h1:       #1a1a18;
+    --hdr-sub:      #6b6860;
+    --hdr-stat:     #1a1a18;
+    --hdr-statlbl:  #a8a49c;
+    --hdr-divider:  #e8e4dc;
+    --hdr-statdiv:  #d4cfc5;
+    --hdr-ring-bg:  #d4cfc5;
+    --hdr-ring-lbl: #a8a49c;
+    --hdr-wks:      #a8a49c;
+  }
+  header {
+    background: var(--hdr-bg);
+    padding: 44px 32px 48px;
+    position: relative;
+    z-index: 10;
+    transition: background .35s;
+  }
+
+  html.dark header { border-bottom: none; }
+  html:not(.dark) header { border-bottom: none; }
+  /* Ambient glow in header */
+  header::before { display: none; }
+  header::after {
+    content: '';
+    position: absolute; top: -150px; left: 50%; transform: translateX(-50%);
+    width: 600px; height: 400px;
+    background: radial-gradient(ellipse, var(--hdr-glow) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .header-inner {
+    max-width: 960px; margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 32px;
+    align-items: start;
+    position: relative; z-index: 1;
+  }
+  .header-left {}
+  .eyebrow {
+    font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--hdr-eyebrow); margin-bottom: 14px;
+    display: flex; align-items: center; gap: 10px;
+    transition: color .35s;
+  }
+  .eyebrow::before { content: ''; width: 22px; height: 1px; background: linear-gradient(90deg, var(--hdr-eyebrow), transparent); }
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(52px, 9vw, 88px);
+    font-weight: 800;
+    line-height: .92;
+    letter-spacing: -.03em;
+    color: var(--hdr-h1);
+    margin-bottom: 20px;
+    transition: color .35s;
+  }
+  h1 em {
+    font-style: normal;
+    background: linear-gradient(135deg, #3ecf8e 0%, #38bdf8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .header-sub {
+    font-size: 14px; color: var(--hdr-sub); line-height: 1.65; max-width: 500px;
+    transition: color .35s;
+  }
+  .stats-row {
+    display: flex; align-items: center; gap: 24px; flex-wrap: wrap;
+    margin-top: 24px;
+    overflow: visible;
+  }
+  .stat-div { display: none; }
+  .stat-box { text-align: left; min-width: 48px; }
+  .stat-num { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700; color: var(--hdr-stat); line-height: 1; transition: color .35s; display: block; }
+  .stat-lbl { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: .1em; text-transform: uppercase; color: var(--hdr-statlbl); margin-top: 3px; transition: color .35s; display: block; }
+
+  /* Ring in top-right corner */
+  .header-ring-wrap {
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    padding-top: 6px;
+  }
+  .ring-svg-wrap { position: relative; width: 96px; height: 96px; }
+  .ring-svg-wrap svg { width: 96px; height: 96px; transform: rotate(-90deg); }
+  .ring-bg-c { fill: none; stroke: var(--hdr-ring-bg); stroke-width: 4; transition: stroke .35s; }
+  .ring-fg-c {
+    fill: none; stroke: url(#rg); stroke-width: 4; stroke-linecap: round;
+    stroke-dasharray: 264; stroke-dashoffset: 264;
+    transition: stroke-dashoffset .7s cubic-bezier(.4,0,.2,1);
+  }
+  .ring-inner {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px;
+  }
+  .ring-pct { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 700; color: var(--hdr-eyebrow); line-height: 1; transition: color .35s; }
+  .ring-lbl { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: .1em; text-transform: uppercase; color: var(--hdr-ring-lbl); transition: color .35s; }
+  .wks-count { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--hdr-wks); letter-spacing: .05em; transition: color .35s; }
+
+  /* Progress bar (not used in header anymore, kept for phase bars) */
+  .overall-bar-wrap { display: none; }
+  .overall-bar-meta { display: flex; justify-content: space-between; font-family: 'DM Mono', monospace; font-size: 10px; color: var(--textmid); margin-bottom: 5px; }
+  .overall-bar-track { height: 5px; background: var(--bg3); border-radius: 5px; overflow: hidden; }
+  .overall-bar-fill { height: 5px; border-radius: 5px; background: linear-gradient(90deg, var(--mint), #22d3ee); transition: width .4s ease; }
+
+  /* ── WRAPPER ── */
+  .wrapper {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 28px 32px 80px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── PHASE NAV ── */
+  .phase-nav { display: flex; justify-content: flex-start; gap: 5px; margin-bottom: 24px; flex-wrap: wrap; }
+  .phase-btn {
+    font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: .07em; text-transform: uppercase;
+    padding: 8px 15px; border-radius: 6px; border: 1px solid var(--border);
+    background: var(--bg2); color: var(--textmid); cursor: pointer; transition: all .18s;
+    display: flex; align-items: center; gap: 7px; box-shadow: var(--shadow);
+  }
+  .phase-btn:hover { border-color: var(--borderhi); color: var(--text); }
+  .phase-btn.active { font-weight: 500; border-color: transparent; color: #fff; }
+  .phase-btn[data-phase="p1"].active { background: var(--sky); }
+  .phase-btn[data-phase="p2"].active { background: var(--mint); }
+  .phase-btn[data-phase="p3"].active { background: var(--orange); }
+  .phase-btn[data-phase="p4"].active { background: var(--violet); }
+  .nav-pct { font-size: 9px; background: rgba(0,0,0,0.12); padding: 1px 6px; border-radius: 8px; }
+
+  /* ── PHASE CONTENT ── */
+  .phase-content { display: none; animation: fadeup .2s ease; }
+  .phase-content.active { display: block; }
+  @keyframes fadeup { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* Phase header */
+  .phase-hdr { margin-bottom: 20px; display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .phase-tag { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: .1em; text-transform: uppercase; margin-bottom: 3px; }
+  .p1 .phase-tag { color: var(--sky); }
+  .p2 .phase-tag { color: var(--mint); }
+  .p3 .phase-tag { color: var(--orange); }
+  .p4 .phase-tag { color: var(--violet); }
+  .phase-name { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 700; letter-spacing: -.01em; }
+  .prog-wrap { min-width: 200px; }
+  .prog-meta { display: flex; justify-content: space-between; font-family: 'DM Mono', monospace; font-size: 10px; color: var(--textdim); margin-bottom: 5px; }
+  .prog-track { height: 4px; background: var(--bg3); border-radius: 4px; overflow: hidden; }
+  .prog-fill { height: 4px; border-radius: 4px; transition: width .4s ease; }
+  .p1 .prog-fill { background: linear-gradient(90deg, var(--sky), #38bdf8); }
+  .p2 .prog-fill { background: linear-gradient(90deg, var(--mint), #22c55e); }
+  .p3 .prog-fill { background: linear-gradient(90deg, var(--orange), #f97316); }
+  .p4 .prog-fill { background: linear-gradient(90deg, var(--violet), #a78bfa); }
+
+  /* Week group */
+  .week-group { margin-bottom: 6px; }
+  .week-toggle-btn {
+    width: 100%; display: flex; align-items: center; gap: 10px;
+    padding: 8px 12px; border: none; background: transparent; cursor: pointer;
+    text-align: left; border-radius: 6px; transition: background .15s;
+  }
+  .week-toggle-btn:hover { background: var(--bg3); }
+  .week-toggle-btn .wk-label { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--textdim); }
+  .week-toggle-btn .wk-count { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--textdim); margin-left: auto; }
+  .week-toggle-btn .wk-chevron { font-size: 10px; color: var(--textdim); transition: transform .2s; }
+  .week-toggle-btn.open .wk-chevron { transform: rotate(90deg); }
+  .week-days { display: none; padding: 2px 0 8px; }
+  .week-days.open { display: block; }
+
+  /* Day card */
+  .day-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 8px; margin-bottom: 6px; overflow: hidden;
+    cursor: pointer; transition: border-color .15s, box-shadow .15s;
+    box-shadow: var(--shadow);
+  }
+  .day-card:hover { border-color: var(--borderhi); box-shadow: var(--shadow-md); }
+  .day-card.done { background: var(--done-bg); border-color: var(--done-bdr); }
+  .day-inner { display: flex; align-items: stretch; }
+
+  /* Left accent */
+  .day-accent { width: 3px; flex-shrink: 0; }
+  .p1 .day-accent { background: var(--sky); }
+  .p2 .day-accent { background: var(--mint); }
+  .p3 .day-accent { background: var(--orange); }
+  .p4 .day-accent { background: var(--violet); }
+  .day-card.done .day-accent { background: #86efac; }
+
+  .day-body { flex: 1; padding: 12px 14px; }
+  .day-header { display: flex; align-items: center; gap: 9px; margin-bottom: 6px; }
+
+  .day-num { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: .08em; text-transform: uppercase; padding: 2px 8px; border-radius: 3px; flex-shrink: 0; font-weight: 500; }
+  .p1 .day-num { background: var(--sky-bg); color: var(--sky-txt); border: 1px solid var(--sky-bdr); }
+  .p2 .day-num { background: var(--mint-bg); color: var(--mint-txt); border: 1px solid var(--mint-bdr); }
+  .p3 .day-num { background: var(--orange-bg); color: var(--orange-txt); border: 1px solid var(--orange-bdr); }
+  .p4 .day-num { background: var(--violet-bg); color: var(--violet-txt); border: 1px solid var(--violet-bdr); }
+  .day-card.done .day-num { background: var(--done-bg); color: var(--done-text); border-color: var(--done-bdr); }
+
+  .day-title { font-size: 13px; font-weight: 500; color: var(--text); flex: 1; line-height: 1.3; }
+  .day-card.done .day-title { color: var(--textdim); text-decoration: line-through; text-decoration-color: var(--borderhi); }
+
+  .day-check { width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid var(--borderhi); background: transparent; flex-shrink: 0; margin-left: auto; display: flex; align-items: center; justify-content: center; pointer-events: none; transition: all .18s; }
+  .day-check svg { display: none; }
+  .day-card.done .day-check { background: #16a34a; border-color: #16a34a; }
+  .day-card.done .day-check svg { display: block; }
+
+  .day-desc { font-size: 12px; color: var(--textmid); line-height: 1.6; margin-bottom: 8px; }
+  .day-card.done .day-desc { opacity: 0.5; }
+
+  /* Resource links */
+  .day-links { display: flex; flex-wrap: wrap; gap: 5px; }
+  .day-links a {
+    font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: .03em;
+    padding: 3px 9px; border-radius: 3px; text-decoration: none; transition: all .15s;
+    display: inline-flex; align-items: center; gap: 4px; border: 1px solid;
+  }
+  .day-links a::before { content: '↗'; font-size: 8px; opacity: 0.6; }
+  .p1 .day-links a { background: var(--sky-bg); color: var(--sky-txt); border-color: var(--sky-bdr); }
+  .p1 .day-links a:hover { background: #bae6fd; border-color: var(--sky); }
+  .p2 .day-links a { background: var(--mint-bg); color: var(--mint-txt); border-color: var(--mint-bdr); }
+  .p2 .day-links a:hover { background: #bbf7d0; border-color: var(--mint); }
+  .p3 .day-links a { background: var(--orange-bg); color: var(--orange-txt); border-color: var(--orange-bdr); }
+  .p3 .day-links a:hover { background: #fed7aa; border-color: var(--orange); }
+  .p4 .day-links a { background: var(--violet-bg); color: var(--violet-txt); border-color: var(--violet-bdr); }
+  .p4 .day-links a:hover { background: #ddd6fe; border-color: var(--violet); }
+  .day-card.done .day-links { opacity: 0.35; pointer-events: none; }
+
+  /* Streak banner */
+  .streak-banner { background: var(--amber-bg); border: 1px solid var(--amber-bdr); border-radius: 8px; padding: 10px 14px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+  .streak-icon { font-size: 18px; }
+  .streak-text { font-size: 13px; font-weight: 500; color: var(--amber); }
+  .streak-sub { font-size: 11px; color: var(--textmid); }
+
+  /* Reset */
+  .reset-btn { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; padding: 8px 16px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg2); color: var(--textdim); cursor: pointer; margin-top: 32px; transition: all .18s; box-shadow: var(--shadow); }
+  .reset-btn:hover { border-color: #fca5a5; color: #dc2626; }
+
+  /* Toast */
+  .toast { position: fixed; bottom: 24px; right: 24px; background: var(--text); color: #fff; font-family: 'DM Mono', monospace; font-size: 11px; padding: 10px 18px; border-radius: 8px; z-index: 999; opacity: 0; transform: translateY(8px); transition: all .25s; pointer-events: none; box-shadow: var(--shadow-md); }
+  .toast.show { opacity: 1; transform: translateY(0); }
+
+  /* Footer */
+  footer { margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--border); font-family: 'DM Mono', monospace; font-size: 10px; color: var(--textdim); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+  .dot { color: var(--mint); margin: 0 4px; }
+
+  /* ── THEME TOGGLE ── */
+  .theme-btn {
+    width: 38px; height: 22px;
+    border-radius: 11px;
+    border: 1.5px solid var(--border);
+    background: var(--bg3);
+    cursor: pointer;
+    position: relative;
+    transition: background .25s, border-color .25s;
+    flex-shrink: 0;
+  }
+  .theme-btn:hover { border-color: var(--borderhi); }
+  .theme-btn .knob {
+    position: absolute;
+    top: 2px; left: 2px;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: var(--textmid);
+    transition: transform .25s, background .25s;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 8px;
+  }
+  html.dark .theme-btn .knob { transform: translateX(16px); background: #3ecf8e; }
+  html.dark .theme-btn { background: rgba(62,207,142,0.1); border-color: rgba(62,207,142,0.3); }
+  .theme-btn-wrap { display: flex; align-items: center; gap: 7px; }
+  .theme-lbl { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: .08em; text-transform: uppercase; color: var(--hdr-statlbl); white-space: nowrap; transition: color .35s; }
+
+  @media (max-width: 600px) {
+    .header-inner { grid-template-columns: 1fr; }
+    .header-ring-wrap { flex-direction: row; align-items: center; gap: 14px; }
+    .wrapper { padding: 20px 16px 60px; }
+    footer { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="header-left">
+      <div class="eyebrow">4th Sem IT Engineering · Placement Prep 2025</div>
+      <h1>xG<br><em>Placement</em><br>Tracker</h1>
+      <div class="header-sub">Your 4-month day-by-day roadmap to placement-ready. DSA daily + 3 football AI projects. Tick each day off as you go.</div>
+      <div class="stats-row">
+        <div class="stat-box"><div class="stat-num" id="hdr-done">0</div><div class="stat-lbl">Days done</div></div>
+        <div class="stat-div"></div>
+        <div class="stat-box"><div class="stat-num" id="hdr-streak">0</div><div class="stat-lbl">Streak 🔥</div></div>
+        <div class="stat-div"></div>
+        <div class="theme-btn-wrap">
+          <span class="theme-lbl" id="theme-lbl">Light</span>
+          <button class="theme-btn" onclick="toggleTheme()" title="Toggle dark/light mode">
+            <div class="knob" id="theme-knob">☀</div>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="header-ring-wrap">
+      <div class="ring-svg-wrap">
+        <svg viewBox="0 0 96 96">
+          <defs>
+            <linearGradient id="rg" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#3ecf8e"/>
+              <stop offset="100%" stop-color="#38bdf8"/>
+            </linearGradient>
+          </defs>
+          <circle class="ring-bg-c" cx="48" cy="48" r="42"/>
+          <circle class="ring-fg-c" id="overall-ring" cx="48" cy="48" r="42"/>
+        </svg>
+        <div class="ring-inner">
+          <span class="ring-pct" id="overall-pct">0%</span>
+          <span class="ring-lbl">done</span>
+        </div>
+      </div>
+      <span class="wks-count" id="weeks-count">0 / 160 days</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrapper">
+
+  <div class="streak-banner" id="streak-banner" style="display:none">
+    <span class="streak-icon">🔥</span>
+    <div><div class="streak-text" id="streak-msg"></div><div class="streak-sub">Keep the momentum going!</div></div>
+  </div>
+
+  <nav class="phase-nav">
+    <button class="phase-btn active" data-phase="p1" onclick="switchPhase('p1')">💻 DSA <span class="nav-pct" id="p1-navpct">0%</span></button>
+    <button class="phase-btn" data-phase="p2" onclick="switchPhase('p2')">⚽ xG Model <span class="nav-pct" id="p2-navpct">0%</span></button>
+    <button class="phase-btn" data-phase="p3" onclick="switchPhase('p3')">💰 Transfer Value <span class="nav-pct" id="p3-navpct">0%</span></button>
+    <button class="phase-btn" data-phase="p4" onclick="switchPhase('p4')">🎥 CV Tactics <span class="nav-pct" id="p4-navpct">0%</span></button>
+  </nav>
+
+  <!-- ═══ PHASE 1: DSA ═══ -->
+  <div class="phase-content p1 active" id="phase-p1">
+    <div class="phase-hdr">
+      <div><div class="phase-tag">Parallel · All 4 months · 1 problem/day</div><div class="phase-name">DSA — Daily LeetCode</div></div>
+      <div class="prog-wrap"><div class="prog-meta"><span id="p1-label">0 / 80 days</span><span id="p1-pct">0%</span></div><div class="prog-track"><div class="prog-fill" id="p1-bar" style="width:0%"></div></div></div>
+    </div>
+    <div id="p1-days"></div>
+  </div>
+
+  <!-- ═══ PHASE 2: xG MODEL ═══ -->
+  <div class="phase-content p2" id="phase-p2">
+    <div class="phase-hdr">
+      <div><div class="phase-tag">Project 1 · Month 1–2</div><div class="phase-name">Expected Goals (xG) Model</div></div>
+      <div class="prog-wrap"><div class="prog-meta"><span id="p2-label">0 / 30 days</span><span id="p2-pct">0%</span></div><div class="prog-track"><div class="prog-fill" id="p2-bar" style="width:0%"></div></div></div>
+    </div>
+    <div id="p2-days"></div>
+  </div>
+
+  <!-- ═══ PHASE 3: TRANSFER VALUE ═══ -->
+  <div class="phase-content p3" id="phase-p3">
+    <div class="phase-hdr">
+      <div><div class="phase-tag">Project 2 · Month 2–3</div><div class="phase-name">Transfer Value Estimator</div></div>
+      <div class="prog-wrap"><div class="prog-meta"><span id="p3-label">0 / 20 days</span><span id="p3-pct">0%</span></div><div class="prog-track"><div class="prog-fill" id="p3-bar" style="width:0%"></div></div></div>
+    </div>
+    <div id="p3-days"></div>
+  </div>
+
+  <!-- ═══ PHASE 4: CV TACTICS ═══ -->
+  <div class="phase-content p4" id="phase-p4">
+    <div class="phase-hdr">
+      <div><div class="phase-tag">Project 3 · Month 3–4</div><div class="phase-name">CV Tactics Analyzer</div></div>
+      <div class="prog-wrap"><div class="prog-meta"><span id="p4-label">0 / 30 days</span><span id="p4-pct">0%</span></div><div class="prog-track"><div class="prog-fill" id="p4-bar" style="width:0%"></div></div></div>
+    </div>
+    <div id="p4-days"></div>
+  </div>
+
+  <button class="reset-btn" onclick="resetAll()">↺ Reset all progress</button>
+
+  <footer>
+    <span>xG Placement Tracker <span class="dot">·</span> Day-by-Day Edition</span>
+    <span>Progress auto-saved <span class="dot">·</span> Built with Claude</span>
+  </footer>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const KEY = 'xg_day_tracker_v1';
+let saved = {};
+try { saved = JSON.parse(localStorage.getItem(KEY)) || {}; } catch(e) {}
+
+// ─────────────────────────────────────────────
+// DATA
+// ─────────────────────────────────────────────
+
+const dsaDays = [
+  // Month 1 - Arrays & Strings
+  { week:'Month 1 — Arrays, Strings, Hashmaps', day:'Day 1',  title:'Two Sum + Contains Duplicate',             desc:'Solve Two Sum using a hashmap (O(n)). Then solve Contains Duplicate. Understand why hashmap beats brute force here.', links:[{t:'Two Sum',u:'https://leetcode.com/problems/two-sum/'},{t:'Contains Duplicate',u:'https://leetcode.com/problems/contains-duplicate/'},{t:'Big O Intro',u:'https://www.bigocheatsheet.com/'}]},
+  { week:'Month 1 — Arrays, Strings, Hashmaps', day:'Day 2',  title:'Valid Anagram + Two Sum II (sorted input)',  desc:'Valid Anagram using freq maps. Two Sum II uses two pointers on a sorted array — spot the pattern.', links:[{t:'Valid Anagram',u:'https://leetcode.com/problems/valid-anagram/'},{t:'Two Sum II',u:'https://leetcode.com/problems/two-sum-ii-input-array-is-sorted/'}]},
+  { week:'Month 1 — Arrays, Strings, Hashmaps', day:'Day 3',  title:'Best Time to Buy and Sell Stock',            desc:'Classic sliding window / single pass. Track min price seen so far. Very common interview question.', links:[{t:'Buy and Sell Stock',u:'https://leetcode.com/problems/best-time-to-buy-and-sell-stock/'},{t:'Sliding Window explainer',u:'https://www.youtube.com/watch?v=MK-NZ4hN7rs'}]},
+  { week:'Month 1 — Arrays, Strings, Hashmaps', day:'Day 4',  title:'Maximum Subarray (Kadane\'s Algorithm)',     desc:'Learn Kadane\'s algorithm — one of the most elegant DP-style solutions. Understand why it works.', links:[{t:'Maximum Subarray',u:'https://leetcode.com/problems/maximum-subarray/'},{t:'Kadane\'s explained',u:'https://www.youtube.com/watch?v=86CQq3pKSUw'}]},
+  { week:'Month 1 — Arrays, Strings, Hashmaps', day:'Day 5',  title:'Product of Array Except Self',               desc:'No division allowed. Build prefix and suffix arrays. Great problem for thinking about array passes.', links:[{t:'Product Except Self',u:'https://leetcode.com/problems/product-of-array-except-self/'}]},
+  { week:'Month 1 — Arrays, Strings, Hashmaps', day:'Day 6',  title:'Valid Palindrome + Reverse String',          desc:'Two pointer pattern — one from each end. Master this, it appears in dozens of problems.', links:[{t:'Valid Palindrome',u:'https://leetcode.com/problems/valid-palindrome/'},{t:'Reverse String',u:'https://leetcode.com/problems/reverse-string/'}]},
+  { week:'Month 1 — Arrays, Strings, Hashmaps', day:'Day 7',  title:'Longest Common Prefix + First Unique Char',  desc:'String fundamentals. Practice Python string methods: split, join, ord, chr, startswith.', links:[{t:'Longest Common Prefix',u:'https://leetcode.com/problems/longest-common-prefix/'},{t:'First Unique Char',u:'https://leetcode.com/problems/first-unique-character-in-a-string/'}]},
+  { week:'Month 1 — Arrays, Strings, Hashmaps', day:'Day 8',  title:'Move Zeroes + Remove Duplicates (sorted)',   desc:'Two pointer write pattern. Pointer i reads, pointer j writes. Very common in-place technique.', links:[{t:'Move Zeroes',u:'https://leetcode.com/problems/move-zeroes/'},{t:'Remove Duplicates',u:'https://leetcode.com/problems/remove-duplicates-from-sorted-array/'}]},
+  { week:'Month 1 — Arrays, Strings, Hashmaps', day:'Day 9',  title:'Plus One + Single Number (XOR trick)',        desc:'Plus One is great for carry logic. Single Number — learn the XOR trick, it\'s magic.', links:[{t:'Plus One',u:'https://leetcode.com/problems/plus-one/'},{t:'Single Number',u:'https://leetcode.com/problems/single-number/'}]},
+  { week:'Month 1 — Arrays, Strings, Hashmaps', day:'Day 10', title:'Group Anagrams + Top K Frequent Elements',   desc:'HashMap + sorting. Group Anagrams uses sorted string as key. Top K uses bucket sort or heap.', links:[{t:'Group Anagrams',u:'https://leetcode.com/problems/group-anagrams/'},{t:'Top K Frequent',u:'https://leetcode.com/problems/top-k-frequent-elements/'}]},
+  { week:'Month 1 — Arrays, Strings, Hashmaps', day:'Day 11', title:'Longest Substring Without Repeating Chars',  desc:'Classic sliding window with a set. Expand right, shrink left when duplicate found. Very common.', links:[{t:'Longest Substring',u:'https://leetcode.com/problems/longest-substring-without-repeating-characters/'}]},
+  { week:'Month 1 — Arrays, Strings, Hashmaps', day:'Day 12', title:'3Sum',                                        desc:'Sort + two pointers. Fix one element, two-pointer the rest. Handle duplicates carefully.', links:[{t:'3Sum',u:'https://leetcode.com/problems/3sum/'},{t:'NeetCode 3Sum',u:'https://www.youtube.com/watch?v=jzZsG8n2R9A'}]},
+  { week:'Month 1 — Arrays, Strings, Hashmaps', day:'Day 13', title:'Container With Most Water',                   desc:'Two pointer from both ends. Greedy choice — move the shorter pointer inward. Classic.', links:[{t:'Container with Most Water',u:'https://leetcode.com/problems/container-with-most-water/'}]},
+  { week:'Month 1 — Arrays, Strings, Hashmaps', day:'Day 14', title:'Majority Element + Missing Number',           desc:'Boyer-Moore voting algorithm for majority. XOR trick for missing number. Both O(n) time O(1) space.', links:[{t:'Majority Element',u:'https://leetcode.com/problems/majority-element/'},{t:'Missing Number',u:'https://leetcode.com/problems/missing-number/'}]},
+  { week:'Month 1 — Arrays, Strings, Hashmaps', day:'Day 15', title:'Encode and Decode Strings',                  desc:'Understand how to serialize data. Key concept for system design interviews too.', links:[{t:'Encode Decode Strings',u:'https://leetcode.com/problems/encode-and-decode-strings/'}]},
+  { week:'Month 1 — Arrays, Strings, Hashmaps', day:'Day 16', title:'Subarray Sum Equals K',                      desc:'Prefix sum + hashmap. A huge leap in difficulty — prefix sums unlock many problems.', links:[{t:'Subarray Sum = K',u:'https://leetcode.com/problems/subarray-sum-equals-k/'},{t:'Prefix sum explained',u:'https://www.youtube.com/watch?v=yCQN096CwWM'}]},
+  { week:'Month 1 — Arrays, Strings, Hashmaps', day:'Day 17', title:'Minimum Window Substring',                   desc:'Hard sliding window. Very common in interviews. Two pointers + freq map.', links:[{t:'Minimum Window Substring',u:'https://leetcode.com/problems/minimum-window-substring/'}]},
+  { week:'Month 1 — Arrays, Strings, Hashmaps', day:'Day 18', title:'Spiral Matrix + Rotate Image',               desc:'Matrix manipulation — practice indexing. Good for in-place operations.', links:[{t:'Spiral Matrix',u:'https://leetcode.com/problems/spiral-matrix/'},{t:'Rotate Image',u:'https://leetcode.com/problems/rotate-image/'}]},
+  { week:'Month 1 — Arrays, Strings, Hashmaps', day:'Day 19', title:'Revision day — redo 3 problems you found hard', desc:'Go back to the 3 hardest problems from this month and redo them without looking at solutions.', links:[{t:'LeetCode Submissions',u:'https://leetcode.com/submissions/'}]},
+  { week:'Month 1 — Arrays, Strings, Hashmaps', day:'Day 20', title:'Mock test — 2 problems in 45 minutes',        desc:'Pick 2 random Medium problems, set a 45-minute timer, and solve them as if in an OA. No hints.', links:[{t:'LeetCode Random Pick',u:'https://leetcode.com/problemset/?difficulty=MEDIUM'},{t:'HackerRank Practice',u:'https://www.hackerrank.com/domains/algorithms'}]},
+
+  // Month 2 - Linked Lists, Stacks, Queues
+  { week:'Month 2 — Linked Lists, Stacks, Queues', day:'Day 21', title:'Reverse Linked List (iterative)',           desc:'Master the 3-pointer reversal: prev, curr, next. Do it iteratively first, then recursively.', links:[{t:'Reverse Linked List',u:'https://leetcode.com/problems/reverse-linked-list/'},{t:'Striver LL Playlist',u:'https://www.youtube.com/playlist?list=PLgUwDviBIf0oF6QL8m22w1hIDC1vJ_BHz'}]},
+  { week:'Month 2 — Linked Lists, Stacks, Queues', day:'Day 22', title:'Merge Two Sorted Lists',                    desc:'Compare heads, link smaller node, recurse or iterate. Foundation for merge sort.', links:[{t:'Merge Two Sorted Lists',u:'https://leetcode.com/problems/merge-two-sorted-lists/'}]},
+  { week:'Month 2 — Linked Lists, Stacks, Queues', day:'Day 23', title:'Linked List Cycle + Remove Nth From End',   desc:'Floyd\'s tortoise and hare for cycle detection. Remove Nth — two pointers with gap n.', links:[{t:'Linked List Cycle',u:'https://leetcode.com/problems/linked-list-cycle/'},{t:'Remove Nth Node',u:'https://leetcode.com/problems/remove-nth-node-from-end-of-list/'}]},
+  { week:'Month 2 — Linked Lists, Stacks, Queues', day:'Day 24', title:'Reorder List + Find Middle of LL',          desc:'Find middle with slow/fast pointers, then reverse second half and merge.', links:[{t:'Reorder List',u:'https://leetcode.com/problems/reorder-list/'},{t:'Middle of Linked List',u:'https://leetcode.com/problems/middle-of-the-linked-list/'}]},
+  { week:'Month 2 — Linked Lists, Stacks, Queues', day:'Day 25', title:'Valid Parentheses + Min Stack',              desc:'Stack fundamentals. Valid Parentheses is a must-know. Min Stack — push pairs (val, current_min).', links:[{t:'Valid Parentheses',u:'https://leetcode.com/problems/valid-parentheses/'},{t:'Min Stack',u:'https://leetcode.com/problems/min-stack/'}]},
+  { week:'Month 2 — Linked Lists, Stacks, Queues', day:'Day 26', title:'Daily Temperatures + Next Greater Element', desc:'Monotonic stack pattern. Learn it once, use it in 20+ problems.', links:[{t:'Daily Temperatures',u:'https://leetcode.com/problems/daily-temperatures/'},{t:'Next Greater Element I',u:'https://leetcode.com/problems/next-greater-element-i/'}]},
+  { week:'Month 2 — Linked Lists, Stacks, Queues', day:'Day 27', title:'Implement Queue using Stacks',               desc:'Understand amortized O(1) complexity. Good system design thinking practice.', links:[{t:'Queue using Stacks',u:'https://leetcode.com/problems/implement-queue-using-stacks/'}]},
+  { week:'Month 2 — Linked Lists, Stacks, Queues', day:'Day 28', title:'Fibonacci + Climbing Stairs (recursion→DP)', desc:'Intro to recursion and memoization. Climbing stairs is Fibonacci in disguise.', links:[{t:'Climbing Stairs',u:'https://leetcode.com/problems/climbing-stairs/'},{t:'Recursion tutorial',u:'https://www.youtube.com/watch?v=IJDJ0kBx2LM'}]},
+  { week:'Month 2 — Linked Lists, Stacks, Queues', day:'Day 29', title:'Merge K Sorted Lists',                       desc:'Heap / priority queue approach. Key concept: use Python\'s heapq module.', links:[{t:'Merge K Sorted Lists',u:'https://leetcode.com/problems/merge-k-sorted-lists/'},{t:'heapq docs',u:'https://docs.python.org/3/library/heapq.html'}]},
+  { week:'Month 2 — Linked Lists, Stacks, Queues', day:'Day 30', title:'Evaluate Reverse Polish Notation',           desc:'Stack-based expression evaluator. Classic. Then try Largest Rectangle in Histogram.', links:[{t:'Reverse Polish Notation',u:'https://leetcode.com/problems/evaluate-reverse-polish-notation/'}]},
+  { week:'Month 2 — Linked Lists, Stacks, Queues', day:'Day 31', title:'Read Big O chapter + analyse your solutions', desc:'Read the Big O cheat sheet. Go back through all your solutions and write the time/space complexity.', links:[{t:'Big O Cheat Sheet',u:'https://www.bigocheatsheet.com/'},{t:'NeetCode Big O',u:'https://www.youtube.com/watch?v=BgLTDT03QtU'}]},
+  { week:'Month 2 — Linked Lists, Stacks, Queues', day:'Day 32', title:'Copy List with Random Pointer',              desc:'HashMap to store node mappings. Deep copy of a complex structure.', links:[{t:'Copy List w/ Random Pointer',u:'https://leetcode.com/problems/copy-list-with-random-pointer/'}]},
+  { week:'Month 2 — Linked Lists, Stacks, Queues', day:'Day 33', title:'LRU Cache',                                  desc:'OrderedDict or doubly linked list + hashmap. Classic design problem. Very frequent in interviews.', links:[{t:'LRU Cache',u:'https://leetcode.com/problems/lru-cache/'},{t:'LRU explained',u:'https://www.youtube.com/watch?v=7ABFKPK2hD4'}]},
+  { week:'Month 2 — Linked Lists, Stacks, Queues', day:'Day 34', title:'Binary Search — basics',                     desc:'Memorise the exact template. Left <= right, mid = (l+r)//2. Practice on sorted arrays first.', links:[{t:'Binary Search',u:'https://leetcode.com/problems/binary-search/'},{t:'Search in Rotated Array',u:'https://leetcode.com/problems/search-in-rotated-sorted-array/'}]},
+  { week:'Month 2 — Linked Lists, Stacks, Queues', day:'Day 35', title:'Find Minimum in Rotated Sorted Array',       desc:'Binary search variant. Think about which half is sorted. Very common interview pattern.', links:[{t:'Find Minimum Rotated',u:'https://leetcode.com/problems/find-minimum-in-rotated-sorted-array/'}]},
+  { week:'Month 2 — Linked Lists, Stacks, Queues', day:'Day 36', title:'Kth Largest Element in Array',               desc:'QuickSelect algorithm (avg O(n)). Or use a min-heap of size k. Know both approaches.', links:[{t:'Kth Largest Element',u:'https://leetcode.com/problems/kth-largest-element-in-an-array/'}]},
+  { week:'Month 2 — Linked Lists, Stacks, Queues', day:'Day 37', title:'Sort Colors (Dutch Flag) + Merge Intervals', desc:'In-place 3-way partition. Then merge intervals — sort by start, compare with last.', links:[{t:'Sort Colors',u:'https://leetcode.com/problems/sort-colors/'},{t:'Merge Intervals',u:'https://leetcode.com/problems/merge-intervals/'}]},
+  { week:'Month 2 — Linked Lists, Stacks, Queues', day:'Day 38', title:'Mock test — 2 Mediums in 45 min',            desc:'Simulate real OA. No hints, no solutions until after. Write time complexity after each.', links:[{t:'LeetCode Contest',u:'https://leetcode.com/contest/'},{t:'Striver Sheet',u:'https://takeuforward.org/strivers-a2z-dsa-course/strivers-a2z-dsa-course-sheet-2/'}]},
+  { week:'Month 2 — Linked Lists, Stacks, Queues', day:'Day 39', title:'Revision — revisit Striver\'s sheet',         desc:'Mark which topics on Striver\'s A2Z sheet you\'ve covered. Identify your weakest area.', links:[{t:'Striver A2Z Sheet',u:'https://takeuforward.org/strivers-a2z-dsa-course/strivers-a2z-dsa-course-sheet-2/'}]},
+  { week:'Month 2 — Linked Lists, Stacks, Queues', day:'Day 40', title:'Trapping Rain Water',                         desc:'Hard but elegant. Two passes or two pointers. One of the most famous array problems ever.', links:[{t:'Trapping Rain Water',u:'https://leetcode.com/problems/trapping-rain-water/'},{t:'NeetCode solution',u:'https://www.youtube.com/watch?v=ZI2z5pq0TqA'}]},
+
+  // Month 3 - Trees & Graphs
+  { week:'Month 3 — Trees, Graphs, BFS/DFS',      day:'Day 41', title:'Invert Binary Tree + Max Depth of BTree', desc:'Recursion on trees: base case is null node. Invert swaps left/right. Max depth counts levels.', links:[{t:'Invert Binary Tree',u:'https://leetcode.com/problems/invert-binary-tree/'},{t:'Max Depth BTree',u:'https://leetcode.com/problems/maximum-depth-of-binary-tree/'}]},
+  { week:'Month 3 — Trees, Graphs, BFS/DFS',      day:'Day 42', title:'Diameter of Binary Tree + Same Tree',     desc:'Diameter is max(left_depth + right_depth) at any node. Use DFS.', links:[{t:'Diameter of BTree',u:'https://leetcode.com/problems/diameter-of-binary-tree/'},{t:'Same Tree',u:'https://leetcode.com/problems/same-tree/'}]},
+  { week:'Month 3 — Trees, Graphs, BFS/DFS',      day:'Day 43', title:'Level Order Traversal (BFS with queue)', desc:'BFS is just iterative level-by-level using a deque. Master this pattern — used everywhere.', links:[{t:'Level Order Traversal',u:'https://leetcode.com/problems/binary-tree-level-order-traversal/'},{t:'collections.deque docs',u:'https://docs.python.org/3/library/collections.html#collections.deque'}]},
+  { week:'Month 3 — Trees, Graphs, BFS/DFS',      day:'Day 44', title:'Validate BST + Lowest Common Ancestor',  desc:'BST validation: in-order must be strictly ascending. LCA: if both targets in opposite subtrees.', links:[{t:'Validate BST',u:'https://leetcode.com/problems/validate-binary-search-tree/'},{t:'LCA of BST',u:'https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-search-tree/'}]},
+  { week:'Month 3 — Trees, Graphs, BFS/DFS',      day:'Day 45', title:'Binary Tree Right Side View + Zigzag', desc:'BFS with alternating direction. Store last element of each level for right side view.', links:[{t:'Right Side View',u:'https://leetcode.com/problems/binary-tree-right-side-view/'},{t:'Zigzag Level Order',u:'https://leetcode.com/problems/binary-tree-zigzag-level-order-traversal/'}]},
+  { week:'Month 3 — Trees, Graphs, BFS/DFS',      day:'Day 46', title:'Number of Islands (DFS on grid)',         desc:'Grid = implicit graph. DFS floods connected land cells. Mark visited to avoid re-visiting.', links:[{t:'Number of Islands',u:'https://leetcode.com/problems/number-of-islands/'},{t:'Graph DFS tutorial',u:'https://www.youtube.com/watch?v=PMMc4VsIacU'}]},
+  { week:'Month 3 — Trees, Graphs, BFS/DFS',      day:'Day 47', title:'Clone Graph + Course Schedule',           desc:'Clone Graph — DFS with visited hashmap. Course Schedule — cycle detection via DFS.', links:[{t:'Clone Graph',u:'https://leetcode.com/problems/clone-graph/'},{t:'Course Schedule',u:'https://leetcode.com/problems/course-schedule/'}]},
+  { week:'Month 3 — Trees, Graphs, BFS/DFS',      day:'Day 48', title:'Pacific Atlantic Water Flow',              desc:'Multi-source BFS from ocean borders. A beautiful graph problem.', links:[{t:'Pacific Atlantic',u:'https://leetcode.com/problems/pacific-atlantic-water-flow/'}]},
+  { week:'Month 3 — Trees, Graphs, BFS/DFS',      day:'Day 49', title:'Walls and Gates + Rotting Oranges',       desc:'Multi-source BFS. Start from all sources simultaneously. Very common interview pattern.', links:[{t:'Walls and Gates',u:'https://leetcode.com/problems/walls-and-gates/'},{t:'Rotting Oranges',u:'https://leetcode.com/problems/rotting-oranges/'}]},
+  { week:'Month 3 — Trees, Graphs, BFS/DFS',      day:'Day 50', title:'Word Ladder + Surrounded Regions',        desc:'Word Ladder is BFS on word graph. Surrounded Regions — DFS from borders.', links:[{t:'Word Ladder',u:'https://leetcode.com/problems/word-ladder/'},{t:'Surrounded Regions',u:'https://leetcode.com/problems/surrounded-regions/'}]},
+  { week:'Month 3 — Trees, Graphs, BFS/DFS',      day:'Day 51', title:'Serialize and Deserialize Binary Tree',   desc:'Hard but important for system design. BFS serialization with level-order.', links:[{t:'Serialize BTree',u:'https://leetcode.com/problems/serialize-and-deserialize-binary-tree/'}]},
+  { week:'Month 3 — Trees, Graphs, BFS/DFS',      day:'Day 52', title:'Binary Tree Maximum Path Sum',            desc:'At each node: answer could pass through it. DFS returns max single-path for parent.', links:[{t:'BTree Max Path Sum',u:'https://leetcode.com/problems/binary-tree-maximum-path-sum/'}]},
+  { week:'Month 3 — Trees, Graphs, BFS/DFS',      day:'Day 53', title:'Alien Dictionary (Topological sort)',      desc:'Build a directed graph of char ordering. Run Kahn\'s algorithm (BFS topo sort).', links:[{t:'Alien Dictionary',u:'https://leetcode.com/problems/alien-dictionary/'},{t:'Topological Sort',u:'https://www.youtube.com/watch?v=eL-KzMXSXXI'}]},
+  { week:'Month 3 — Trees, Graphs, BFS/DFS',      day:'Day 54', title:'Full HackerRank mock OA test (60 min)',    desc:'Do a full HackerRank test under exam conditions. 2 questions, 60 minutes, no looking up.', links:[{t:'HackerRank Practice',u:'https://www.hackerrank.com/domains/algorithms'},{t:'LeetCode Contest',u:'https://leetcode.com/contest/'}]},
+  { week:'Month 3 — Trees, Graphs, BFS/DFS',      day:'Day 55', title:'Revision + Striver\'s sheet progress check', desc:'Open Striver\'s A2Z sheet. Mark everything done. Identify gaps. Plan Month 4.', links:[{t:'Striver A2Z Sheet',u:'https://takeuforward.org/strivers-a2z-dsa-course/strivers-a2z-dsa-course-sheet-2/'},{t:'NeetCode Roadmap',u:'https://neetcode.io/roadmap'}]},
+  { week:'Month 3 — Trees, Graphs, BFS/DFS',      day:'Day 56', title:'Construct BTree from Preorder+Inorder',    desc:'Recursive reconstruction. Preorder first element = root. Find root in inorder = left/right split.', links:[{t:'Construct BTree',u:'https://leetcode.com/problems/construct-binary-tree-from-preorder-and-inorder-traversal/'}]},
+  { week:'Month 3 — Trees, Graphs, BFS/DFS',      day:'Day 57', title:'Redundant Connection + Number of Connected', desc:'Union-Find (Disjoint Set Union). Powerful for connectivity problems.', links:[{t:'Redundant Connection',u:'https://leetcode.com/problems/redundant-connection/'},{t:'Union Find tutorial',u:'https://www.youtube.com/watch?v=aBxjDBC4M1U'}]},
+  { week:'Month 3 — Trees, Graphs, BFS/DFS',      day:'Day 58', title:'Network Delay Time (Dijkstra)',             desc:'Shortest path using min-heap. heapq + adjacency list. Classic Dijkstra implementation.', links:[{t:'Network Delay Time',u:'https://leetcode.com/problems/network-delay-time/'},{t:'Dijkstra explained',u:'https://www.youtube.com/watch?v=XB4MIexjvY0'}]},
+  { week:'Month 3 — Trees, Graphs, BFS/DFS',      day:'Day 59', title:'Swim in Rising Water + Min Cost to Connect', desc:'Dijkstra / binary search on answer. Hard but rewarding.', links:[{t:'Swim in Rising Water',u:'https://leetcode.com/problems/swim-in-rising-water/'}]},
+  { week:'Month 3 — Trees, Graphs, BFS/DFS',      day:'Day 60', title:'Full mock OA — 2 problems, 45 minutes',    desc:'Second mock this month. Aim to be faster. Write down time & space for both solutions after.', links:[{t:'LeetCode Random Medium',u:'https://leetcode.com/problems/random-one-question/'},{t:'HackerRank',u:'https://www.hackerrank.com/domains/algorithms'}]},
+
+  // Month 4 - Dynamic Programming
+  { week:'Month 4 — Dynamic Programming + Prep', day:'Day 61', title:'Climbing Stairs + House Robber (DP intro)',  desc:'Revisit climbing stairs but think in terms of dp[i] = dp[i-1] + dp[i-2]. House Robber extends this.', links:[{t:'House Robber',u:'https://leetcode.com/problems/house-robber/'},{t:'DP intro video',u:'https://www.youtube.com/watch?v=oBt53YbR9Kk'}]},
+  { week:'Month 4 — Dynamic Programming + Prep', day:'Day 62', title:'Coin Change + Min Cost Climbing Stairs',     desc:'Unbounded knapsack pattern. dp[amount] = min coins. Most important DP pattern to master.', links:[{t:'Coin Change',u:'https://leetcode.com/problems/coin-change/'},{t:'Min Cost Climbing',u:'https://leetcode.com/problems/min-cost-climbing-stairs/'}]},
+  { week:'Month 4 — Dynamic Programming + Prep', day:'Day 63', title:'0/1 Knapsack + Partition Equal Subset Sum', desc:'Classic bounded knapsack. Use 2D dp[i][w] or space-optimized 1D. Partition is a knapsack variant.', links:[{t:'Partition Equal Subset',u:'https://leetcode.com/problems/partition-equal-subset-sum/'},{t:'Knapsack tutorial',u:'https://www.youtube.com/watch?v=nLmhmB6NzcM'}]},
+  { week:'Month 4 — Dynamic Programming + Prep', day:'Day 64', title:'Longest Common Subsequence (LCS)',           desc:'2D DP table. LCS[i][j] depends on LCS[i-1][j-1] or max of LCS[i-1][j], LCS[i][j-1].', links:[{t:'LCS',u:'https://leetcode.com/problems/longest-common-subsequence/'},{t:'LCS visualized',u:'https://www.youtube.com/watch?v=Ua0GhsJSlWM'}]},
+  { week:'Month 4 — Dynamic Programming + Prep', day:'Day 65', title:'Edit Distance (Levenshtein)',                 desc:'Most famous string DP. 3 operations: insert, delete, replace. dp[i][j] = min of all three.', links:[{t:'Edit Distance',u:'https://leetcode.com/problems/edit-distance/'}]},
+  { week:'Month 4 — Dynamic Programming + Prep', day:'Day 66', title:'Longest Increasing Subsequence (LIS)',       desc:'O(n²) DP and O(n log n) patience sorting. Know both. LIS is tested everywhere.', links:[{t:'LIS',u:'https://leetcode.com/problems/longest-increasing-subsequence/'},{t:'NeetCode LIS',u:'https://www.youtube.com/watch?v=cjWnW0hdF1Y'}]},
+  { week:'Month 4 — Dynamic Programming + Prep', day:'Day 67', title:'Word Break + Decode Ways',                   desc:'DP on strings. Word Break: can you segment s using dictionary words? Decode Ways counts paths.', links:[{t:'Word Break',u:'https://leetcode.com/problems/word-break/'},{t:'Decode Ways',u:'https://leetcode.com/problems/decode-ways/'}]},
+  { week:'Month 4 — Dynamic Programming + Prep', day:'Day 68', title:'Unique Paths + Minimum Path Sum',            desc:'2D grid DP. Move only right or down. Elegant base case — first row and column are all 1s.', links:[{t:'Unique Paths',u:'https://leetcode.com/problems/unique-paths/'},{t:'Min Path Sum',u:'https://leetcode.com/problems/minimum-path-sum/'}]},
+  { week:'Month 4 — Dynamic Programming + Prep', day:'Day 69', title:'Burst Balloons + Regular Expression Match', desc:'Interval DP and hard string DP. Both are advanced — great for ambitious students.', links:[{t:'Burst Balloons',u:'https://leetcode.com/problems/burst-balloons/'},{t:'Regex Matching',u:'https://leetcode.com/problems/regular-expression-matching/'}]},
+  { week:'Month 4 — Dynamic Programming + Prep', day:'Day 70', title:'Full LeetCode timed contest',                desc:'Join a real LeetCode weekly contest on Sunday. Even if you don\'t finish, it builds exam mentality.', links:[{t:'LeetCode Weekly Contest',u:'https://leetcode.com/contest/'},{t:'Virtual Contest',u:'https://leetcode.com/contest/'}]},
+  { week:'Month 4 — Dynamic Programming + Prep', day:'Day 71', title:'Mock OA — Razorpay/Zepto style (2 Mediums)', desc:'Set a 60-min timer. 2 medium problems. Simulate the exact OA format. Write code in HackerRank IDE.', links:[{t:'HackerRank Practice',u:'https://www.hackerrank.com/domains/algorithms'},{t:'InterviewBit',u:'https://www.interviewbit.com/practice/'}]},
+  { week:'Month 4 — Dynamic Programming + Prep', day:'Day 72', title:'OS/DBMS/Networks basics review',             desc:'Read top 50 interview questions for each: OS scheduling, DBMS normalization, TCP/IP, HTTP vs HTTPS.', links:[{t:'OS Questions',u:'https://www.geeksforgeeks.org/commonly-asked-operating-systems-interview-questions/'},{t:'DBMS Questions',u:'https://www.geeksforgeeks.org/commonly-asked-dbms-interview-questions/'}]},
+  { week:'Month 4 — Dynamic Programming + Prep', day:'Day 73', title:'OOPs concepts + Python specific questions',  desc:'Revisit polymorphism, encapsulation, inheritance, abstraction. Practice explaining them out loud.', links:[{t:'OOPs interview Qs',u:'https://www.geeksforgeeks.org/oops-interview-questions/'},{t:'Python interview Qs',u:'https://www.interviewbit.com/python-interview-questions/'}]},
+  { week:'Month 4 — Dynamic Programming + Prep', day:'Day 74', title:'Revise all 3 projects — prepare talking points', desc:'For each project: write 3 sentences on what it does, the tech stack, one challenge you solved, and the result. Practise saying it out loud.', links:[{t:'STAR method',u:'https://www.youtube.com/watch?v=yz79ZPU2c3A'}]},
+  { week:'Month 4 — Dynamic Programming + Prep', day:'Day 75', title:'Mock technical interview (with a friend)',    desc:'Ask a friend to interview you. Solve 1 DSA problem on paper + explain one of your projects.', links:[{t:'Pramp (free mock interviews)',u:'https://www.pramp.com/'},{t:'Interviewing.io',u:'https://interviewing.io/'}]},
+  { week:'Month 4 — Dynamic Programming + Prep', day:'Day 76', title:'Cold-email 5 alumni from your college',      desc:'Find alumni on LinkedIn who work in data/ML/SDE roles at startups. Write a short, genuine note.', links:[{t:'LinkedIn Alumni Tool',u:'https://www.linkedin.com/mynetwork/'},{t:'Cold email template',u:'https://www.youtube.com/watch?v=wIRCYF10-3M'}]},
+  { week:'Month 4 — Dynamic Programming + Prep', day:'Day 77', title:'Update resume — add all 3 live project links', desc:'Every project needs: 1 line description, tech stack, result metric, live URL + GitHub link.', links:[{t:'Resume Worded (free)',u:'https://resumeworded.com/'},{t:'Jake\'s Resume Template',u:'https://www.overleaf.com/latex/templates/jakes-resume/syzfjbzwjncs'}]},
+  { week:'Month 4 — Dynamic Programming + Prep', day:'Day 78', title:'Post all 3 projects on LinkedIn',            desc:'One post per project. Include a screenshot or demo GIF. Tag relevant tech (Python, ML, OpenCV). Even 50 likes = recruiter visibility.', links:[{t:'LinkedIn post guide',u:'https://www.youtube.com/watch?v=V1kEHPKaFog'}]},
+  { week:'Month 4 — Dynamic Programming + Prep', day:'Day 79', title:'Apply to 10 companies — data/ML/SDE roles',  desc:'Use LinkedIn Jobs, Naukri, and company career pages. Apply to a mix: product startups + MNCs.', links:[{t:'LinkedIn Jobs',u:'https://www.linkedin.com/jobs/'},{t:'Naukri.com',u:'https://www.naukri.com/'},{t:'Instahyre',u:'https://www.instahyre.com/'}]},
+  { week:'Month 4 — Dynamic Programming + Prep', day:'Day 80', title:'Final mock — complete OA simulation',        desc:'3 questions, 90 minutes. Full exam mode. Then immediately review solutions. You\'re placement-ready! 🎉', links:[{t:'LeetCode Contest',u:'https://leetcode.com/contest/'},{t:'HackerRank Test',u:'https://www.hackerrank.com/'}]},
+];
+
+const xgDays = [
+  { week:'Week 1 — Python & Pandas', day:'Day 1', title:'Install Python, VS Code, create virtual environment', desc:'Install Python 3.11, VS Code. Create a project folder, set up venv, install pandas and numpy. Run print("hello football").', links:[{t:'Python Download',u:'https://www.python.org/downloads/'},{t:'VS Code',u:'https://code.visualstudio.com/'},{t:'venv guide',u:'https://realpython.com/python-virtual-environments-a-primer/'}]},
+  { week:'Week 1 — Python & Pandas', day:'Day 2', title:'Python basics — lists, dicts, loops, functions',       desc:'Work through freeCodeCamp Python basics. Write a function that takes a list of numbers and returns the top 5. Practice list comprehensions.', links:[{t:'freeCodeCamp Python',u:'https://www.youtube.com/watch?v=rfscVS0vtbw'},{t:'Kaggle Python Course',u:'https://www.kaggle.com/learn/python'}]},
+  { week:'Week 1 — Python & Pandas', day:'Day 3', title:'Pandas — read, filter, sort a CSV',                    desc:'Download any CSV from Kaggle. Use pd.read_csv, df.head(), df.describe(), df[df["col"] > x], df.sort_values().', links:[{t:'Pandas Getting Started',u:'https://pandas.pydata.org/docs/getting_started/intro_tutorials/'},{t:'Kaggle Pandas Course',u:'https://www.kaggle.com/learn/pandas'}]},
+  { week:'Week 1 — Python & Pandas', day:'Day 4', title:'Pandas — groupby, merge, handle missing data',          desc:'Practice groupby + agg. Merge two DataFrames on a key. Fill NaN with fillna(), drop with dropna().', links:[{t:'Pandas groupby',u:'https://pandas.pydata.org/docs/user_guide/groupby.html'},{t:'Pandas merge',u:'https://pandas.pydata.org/docs/user_guide/merging.html'}]},
+  { week:'Week 1 — Python & Pandas', day:'Day 5', title:'Matplotlib basics — line, bar, scatter plots',          desc:'Plot a line chart and a scatter chart. Add title, xlabel, ylabel, legend. Save as PNG.', links:[{t:'Matplotlib Tutorial',u:'https://matplotlib.org/stable/tutorials/index.html'},{t:'Seaborn Tutorial',u:'https://seaborn.pydata.org/tutorial.html'}]},
+  { week:'Week 2 — StatsBomb Data', day:'Day 6', title:'Clone StatsBomb open data, explore structure',           desc:'git clone the StatsBomb open-data repo. Navigate competitions.json → matches → events. Print a La Liga match.', links:[{t:'StatsBomb Open Data',u:'https://github.com/statsbomb/open-data'},{t:'StatsBomb Free Data Hub',u:'https://statsbomb.com/what-we-do/hub/free-data/'}]},
+  { week:'Week 2 — StatsBomb Data', day:'Day 7', title:'Load events JSON, filter shot events only',              desc:'Load a match events file. Filter rows where type.name == "Shot". Print columns: location, outcome, technique, body_part.', links:[{t:'StatsBomb Python Tutorial',u:'https://www.youtube.com/watch?v=OuYtk_6dIhg'},{t:'statsbombpy library',u:'https://github.com/statsbomb/statsbombpy'}]},
+  { week:'Week 2 — StatsBomb Data', day:'Day 8', title:'Feature engineering — shot distance and angle',          desc:'From location [x, y], calculate: distance = sqrt((105-x)²+(34-y)²). Angle = arctan formula. Add as new columns.', links:[{t:'xG feature engineering',u:'https://www.youtube.com/watch?v=w7M9dBmBt48'},{t:'numpy math functions',u:'https://numpy.org/doc/stable/reference/routines.math.html'}]},
+  { week:'Week 2 — StatsBomb Data', day:'Day 9', title:'Feature engineering — boolean features + target col',   desc:'Add: is_header (body_part==Head), is_open_play, under_pressure. Create target column: goal=1, no_goal=0.', links:[{t:'pandas apply docs',u:'https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.apply.html'}]},
+  { week:'Week 2 — StatsBomb Data', day:'Day 10', title:'Visualize shot map on a football pitch',                desc:'Use mplsoccer Pitch() to draw a pitch. Scatter plot all shots colored by outcome. Save as image.', links:[{t:'mplsoccer Pitch Docs',u:'https://mplsoccer.readthedocs.io/en/latest/'},{t:'mplsoccer Shot Map Example',u:'https://mplsoccer.readthedocs.io/en/latest/gallery/pitch_plots/plot_shot_freeze_frame.html'}]},
+  { week:'Week 3–4 — Train ML Models', day:'Day 11', title:'Learn train-test split, watch Krish Naik ML intro',  desc:'Watch the first 3 videos of Krish Naik\'s ML playlist. Then split your shots data: 80% train, 20% test.', links:[{t:'Krish Naik ML Playlist',u:'https://www.youtube.com/playlist?list=PLZoTAELRMXVPBTrWtJkn3wWQxZkmTXGwe'},{t:'sklearn train_test_split',u:'https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.train_test_split.html'}]},
+  { week:'Week 3–4 — Train ML Models', day:'Day 12', title:'Train Logistic Regression baseline model',           desc:'from sklearn.linear_model import LogisticRegression. Fit on training data. Predict probabilities. Understand that output IS xG.', links:[{t:'Logistic Regression sklearn',u:'https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html'}]},
+  { week:'Week 3–4 — Train ML Models', day:'Day 13', title:'Evaluate with AUC-ROC, plot the curve',              desc:'from sklearn.metrics import roc_auc_score, roc_curve. Plot the ROC curve. Understand what AUC=0.78 means.', links:[{t:'ROC AUC sklearn',u:'https://scikit-learn.org/stable/modules/generated/sklearn.metrics.roc_auc_score.html'},{t:'ROC explained',u:'https://www.youtube.com/watch?v=4jRBRDbJemM'}]},
+  { week:'Week 3–4 — Train ML Models', day:'Day 14', title:'Train XGBoost model, compare with baseline',         desc:'pip install xgboost. Train XGBClassifier. Compare AUC vs Logistic Regression. XGBoost should win.', links:[{t:'XGBoost Python Guide',u:'https://xgboost.readthedocs.io/en/stable/python/python_intro.html'},{t:'XGBoost sklearn API',u:'https://xgboost.readthedocs.io/en/stable/python/sklearn_estimator.html'}]},
+  { week:'Week 3–4 — Train ML Models', day:'Day 15', title:'Cross-validation — 5-fold CV on XGBoost',            desc:'Use cross_val_score with cv=5. This gives you a more honest model performance estimate.', links:[{t:'Cross-validation sklearn',u:'https://scikit-learn.org/stable/modules/cross_validation.html'}]},
+  { week:'Week 3–4 — Train ML Models', day:'Day 16', title:'Feature importance chart + calibration curve',       desc:'Plot xgb feature_importances_. Plot calibration curve (does predicted prob 0.3 actually mean 30% goals?).', links:[{t:'Calibration sklearn',u:'https://scikit-learn.org/stable/modules/calibration.html'},{t:'Feature importance',u:'https://machinelearningmastery.com/feature-importance-and-feature-selection-with-xgboost-in-python/'}]},
+  { week:'Week 3–4 — Train ML Models', day:'Day 17', title:'Compare your xG vs Understat official numbers',      desc:'Download Understat xG for La Liga strikers. Compare: which players over/under-perform their xG most?', links:[{t:'Understat xG Data',u:'https://understat.com/'},{t:'understat Python API',u:'https://pypi.org/project/understat/'}]},
+  { week:'Week 5–6 — SHAP + Streamlit + Deploy', day:'Day 18', title:'Install SHAP, generate waterfall chart',   desc:'pip install shap. import shap, create explainer, plot waterfall for one shot. See which features push xG up or down.', links:[{t:'SHAP Docs',u:'https://shap.readthedocs.io/en/latest/'},{t:'SHAP intro notebook',u:'https://shap.readthedocs.io/en/latest/example_notebooks/overviews/An%20introduction%20to%20explainable%20AI%20with%20Shapley%20values.html'}]},
+  { week:'Week 5–6 — SHAP + Streamlit + Deploy', day:'Day 19', title:'SHAP summary plot for entire dataset',     desc:'shap.summary_plot(shap_values, X_test). See which features matter most globally across all shots.', links:[{t:'SHAP Summary Plot',u:'https://shap.readthedocs.io/en/latest/generated/shap.plots.beeswarm.html'}]},
+  { week:'Week 5–6 — SHAP + Streamlit + Deploy', day:'Day 20', title:'Build Streamlit app — player selector + shot map', desc:'pip install streamlit. Build first version: dropdown to select player, show their shot map with xG values.', links:[{t:'Streamlit Getting Started',u:'https://docs.streamlit.io/get-started'},{t:'Streamlit API Cheatsheet',u:'https://docs.streamlit.io/develop/quick-reference/cheat-sheet'}]},
+  { week:'Week 5–6 — SHAP + Streamlit + Deploy', day:'Day 21', title:'Add SHAP waterfall to Streamlit app',      desc:'When user clicks a shot, show its SHAP waterfall chart. Add st.selectbox for player, st.metric for stats.', links:[{t:'Streamlit Charts',u:'https://docs.streamlit.io/develop/api-reference/charts'},{t:'st.selectbox docs',u:'https://docs.streamlit.io/develop/api-reference/widgets/st.selectbox'}]},
+  { week:'Week 5–6 — SHAP + Streamlit + Deploy', day:'Day 22', title:'Write GitHub README with results + screenshots', desc:'README must include: what the project does, how to run it, your AUC score, 2-3 screenshots. Add a gif of the app.', links:[{t:'GitHub README guide',u:'https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-readmes'},{t:'Shields.io badges',u:'https://shields.io/'}]},
+  { week:'Week 5–6 — SHAP + Streamlit + Deploy', day:'Day 23', title:'Push to GitHub, deploy on Streamlit Cloud', desc:'git init, git add, git commit, git push. Then go to share.streamlit.io → connect repo → deploy.', links:[{t:'GitHub Quickstart',u:'https://docs.github.com/en/get-started/quickstart/create-a-repo'},{t:'Streamlit Cloud Deploy',u:'https://share.streamlit.io/'}]},
+  { week:'Week 5–6 — SHAP + Streamlit + Deploy', day:'Day 24', title:'Write LinkedIn post with live app link',    desc:'Post: "I built an xG model using StatsBomb data. Here\'s what I learned..." + screenshot + Streamlit link.', links:[{t:'LinkedIn post tips',u:'https://www.youtube.com/watch?v=V1kEHPKaFog'}]},
+  { week:'Week 5–6 — SHAP + Streamlit + Deploy', day:'Day 25', title:'Extend to multi-league — add Premier League', desc:'Download FBref PL data. Add league dropdown to app. Now app covers 2 leagues. Update README.', links:[{t:'FBref PL Stats',u:'https://fbref.com/en/comps/9/stats/Premier-League-Stats'},{t:'FBref La Liga Stats',u:'https://fbref.com/en/comps/12/stats/La-Liga-Stats'}]},
+  { week:'Week 5–6 — SHAP + Streamlit + Deploy', day:'Day 26', title:'Prepare project pitch — 2 min verbal explanation', desc:'Practice saying: what the project does, why xG matters, your model\'s AUC, one interesting finding. Do this 5 times out loud.', links:[{t:'STAR method guide',u:'https://www.youtube.com/watch?v=yz79ZPU2c3A'}]},
+  { week:'Week 5–6 — SHAP + Streamlit + Deploy', day:'Day 27', title:'Finalize resume bullet for Project 1',      desc:'Write the 1-line resume bullet: "Built xG prediction model using StatsBomb data — XGBoost, AUC 0.81, SHAP explainability, deployed Streamlit app." Add the live URL.', links:[{t:'Resume Worded',u:'https://resumeworded.com/'}]},
+  { week:'Week 5–6 — SHAP + Streamlit + Deploy', day:'Day 28', title:'Code cleanup + requirements.txt + final push', desc:'Clean unused code. Add comments. Generate requirements.txt with pip freeze. Final GitHub push. ✓', links:[{t:'pip freeze docs',u:'https://pip.pypa.io/en/stable/cli/pip_freeze/'},{t:'GitHub best practices',u:'https://docs.github.com/en/get-started/using-git/about-git'}]},
+];
+
+const transferDays = [
+  { week:'Week 7 — Scraping', day:'Day 1', title:'Learn BeautifulSoup — scrape a simple webpage',                desc:'Install requests and bs4. Scrape a simple website (e.g. books.toscrape.com). Understand tags, attrs, find_all.', links:[{t:'BeautifulSoup Docs',u:'https://www.crummy.com/software/BeautifulSoup/bs4/doc/'},{t:'Requests library',u:'https://docs.python-requests.org/en/latest/'}]},
+  { week:'Week 7 — Scraping', day:'Day 2', title:'Scrape Transfermarkt La Liga player values',                   desc:'Use browser User-Agent headers. Scrape player name, age, position, market value. Add time.sleep(2) between pages.', links:[{t:'Transfermarkt La Liga',u:'https://www.transfermarkt.com/laliga/marktwerte/wettbewerb/ES1'},{t:'Scraping tips',u:'https://www.scrapingbee.com/blog/web-scraping-without-getting-blocked/'}]},
+  { week:'Week 7 — Scraping', day:'Day 3', title:'Download FBref stats + parse market value strings',            desc:'Download La Liga player stats CSV from FBref. Write parse_value() to convert "€85.00m" → 85.0 float.', links:[{t:'FBref La Liga Stats',u:'https://fbref.com/en/comps/12/stats/La-Liga-Stats'}]},
+  { week:'Week 7 — Scraping', day:'Day 4', title:'Merge datasets — solve name mismatch with difflib',            desc:'Merge Transfermarkt and FBref on player name. Handle mismatches using difflib.get_close_matches(). Log all failed matches.', links:[{t:'Python difflib',u:'https://docs.python.org/3/library/difflib.html'},{t:'pandas merge docs',u:'https://pandas.pydata.org/docs/user_guide/merging.html'}]},
+  { week:'Week 7 — Scraping', day:'Day 5', title:'EDA — distributions, correlations, outliers',                 desc:'Plot market value distribution (log scale). Correlation heatmap of all features. Find outliers (e.g. Yamal at 17 years old).', links:[{t:'Seaborn heatmap',u:'https://seaborn.pydata.org/generated/seaborn.heatmap.html'},{t:'Plotly Express',u:'https://plotly.com/python/plotly-express/'}]},
+  { week:'Week 8 — ML Model', day:'Day 6', title:'Feature engineering — age², goals per 90, prog carries',      desc:'Add polynomial features (age²), per-90 stats (divide by minutes/90), encode position and league.', links:[{t:'sklearn PolynomialFeatures',u:'https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.PolynomialFeatures.html'}]},
+  { week:'Week 8 — ML Model', day:'Day 7', title:'Train XGBoost regressor, evaluate MAE and R²',                desc:'XGBRegressor. Evaluate: mean_absolute_error, r2_score. A good R² here is > 0.75. Note your exact numbers.', links:[{t:'XGBoost Regressor',u:'https://xgboost.readthedocs.io/en/stable/'},{t:'Sklearn Metrics',u:'https://scikit-learn.org/stable/modules/model_evaluation.html'}]},
+  { week:'Week 8 — ML Model', day:'Day 8', title:'SHAP waterfall — "why is Yamal valued at €180M?"',            desc:'Generate SHAP waterfall for Lamine Yamal. Which features drive his value? Age? Goals? Progressive carries?', links:[{t:'SHAP Docs',u:'https://shap.readthedocs.io/en/latest/'},{t:'SHAP waterfall',u:'https://shap.readthedocs.io/en/latest/generated/shap.plots.waterfall.html'}]},
+  { week:'Week 8 — ML Model', day:'Day 9', title:'Scatter: predicted vs actual — find over/undervalued players', desc:'Plot predicted vs actual with a diagonal reference line. Players above = overvalued. Below = undervalued bargains.', links:[{t:'Plotly Scatter',u:'https://plotly.com/python/line-and-scatter/'}]},
+  { week:'Week 8 — ML Model', day:'Day 10', title:'Scrape Google News RSS for transfer headlines',               desc:'Fetch https://news.google.com/rss/search?q=player+transfer. Parse titles with BeautifulSoup xml parser.', links:[{t:'Google News RSS example',u:'https://news.google.com/rss/search?q=Lamine+Yamal+transfer'}]},
+  { week:'Week 9 — NLP Layer', day:'Day 11', title:'Run FinBERT on headlines — get sentiment scores',            desc:'pip install transformers. Load ProsusAI/finbert pipeline. Run on your headlines list. Get positive/negative/neutral.', links:[{t:'FinBERT on HuggingFace',u:'https://huggingface.co/ProsusAI/finbert'},{t:'HuggingFace Pipeline',u:'https://huggingface.co/docs/transformers/pipeline_tutorial'}]},
+  { week:'Week 9 — NLP Layer', day:'Day 12', title:'Build sentiment score function — average over headlines',     desc:'Convert label + confidence → score: positive=+conf, negative=-conf, neutral=0. Average over all headlines for one player.', links:[{t:'Transformers Docs',u:'https://huggingface.co/docs/transformers/index'}]},
+  { week:'Week 9 — NLP Layer', day:'Day 13', title:'Integrate sentiment into value adjustment (±15%)',            desc:'adjusted = base_value * (1 + sentiment * 0.15). Test on 5 players manually. Does Injury news pull value down?', links:[{t:'pandas apply',u:'https://pandas.pydata.org/docs/reference/api/pandas.Series.apply.html'}]},
+  { week:'Week 9 — NLP Layer', day:'Day 14', title:'Build Streamlit app — player → value + sentiment bar',       desc:'App: select player → show ML base value, sentiment score with a colored bar (green/red), adjusted final value.', links:[{t:'Streamlit Docs',u:'https://docs.streamlit.io/'},{t:'st.metric docs',u:'https://docs.streamlit.io/develop/api-reference/data/st.metric'}]},
+  { week:'Week 9 — NLP Layer', day:'Day 15', title:'Add SHAP waterfall and pred vs actual Plotly chart to app',  desc:'Add two tabs to Streamlit: Tab 1 = Value estimate, Tab 2 = SHAP + scatter.', links:[{t:'Streamlit tabs',u:'https://docs.streamlit.io/develop/api-reference/layout/st.tabs'},{t:'Plotly in Streamlit',u:'https://docs.streamlit.io/develop/api-reference/charts/st.plotly_chart'}]},
+  { week:'Week 10 — Deploy', day:'Day 16', title:'Write README with results + interesting findings',              desc:'Must include: R² score, best model findings, 2 over/undervalued players you found, screenshots. Be specific.', links:[{t:'GitHub README guide',u:'https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-readmes'}]},
+  { week:'Week 10 — Deploy', day:'Day 17', title:'Push to GitHub, deploy on Streamlit Cloud',                    desc:'requirements.txt must include streamlit, xgboost, shap, transformers, beautifulsoup4. Deploy on Streamlit Cloud.', links:[{t:'Streamlit Cloud',u:'https://share.streamlit.io/'},{t:'GitHub Quickstart',u:'https://docs.github.com/en/get-started/quickstart/create-a-repo'}]},
+  { week:'Week 10 — Deploy', day:'Day 18', title:'Post on LinkedIn — include demo and key insight',               desc:'Share a finding: "My model predicts X is undervalued at €Y when Transfermarkt says €Z." Tag #MachineLearning #Football.', links:[{t:'LinkedIn Post',u:'https://www.linkedin.com/'}]},
+  { week:'Week 10 — Deploy', day:'Day 19', title:'Prepare project pitch — 2 minute verbal explanation',           desc:'Practice explaining the scraping + ML + NLP pipeline in 2 minutes. "The interesting part was the name mismatch problem..."', links:[{t:'STAR method',u:'https://www.youtube.com/watch?v=yz79ZPU2c3A'}]},
+  { week:'Week 10 — Deploy', day:'Day 20', title:'Finalize resume bullet + code cleanup + final push ✓',          desc:'Resume: "Built transfer value estimator — scraped 500+ players, XGBoost R²=0.79, FinBERT NLP sentiment layer, live on Streamlit."', links:[{t:'Resume Worded',u:'https://resumeworded.com/'}]},
+];
+
+const cvDays = [
+  { week:'Week 11 — OpenCV + YOLO Basics', day:'Day 1', title:'Install OpenCV, read an image, draw shapes',     desc:'pip install ultralytics opencv-python. Read an image with cv2.imread. Draw a rectangle and text. Display with cv2.imshow.', links:[{t:'OpenCV Python Install',u:'https://docs.opencv.org/4.x/d6/d00/tutorial_py_root.html'},{t:'YOLOv8 Quickstart',u:'https://docs.ultralytics.com/quickstart/'}]},
+  { week:'Week 11 — OpenCV + YOLO Basics', day:'Day 2', title:'Read a video file frame by frame with OpenCV',    desc:'cap = cv2.VideoCapture("video.mp4"). Loop: cap.read() → process frame → display. Learn fps, frame count.', links:[{t:'OpenCV Video Tutorial',u:'https://docs.opencv.org/4.x/dd/d43/tutorial_py_video_display.html'}]},
+  { week:'Week 11 — OpenCV + YOLO Basics', day:'Day 3', title:'Run YOLOv8 on a single image, understand output', desc:'from ultralytics import YOLO; model = YOLO("yolov8n.pt"). Run on a match screenshot. Print boxes, conf, cls.', links:[{t:'YOLOv8 Predict Docs',u:'https://docs.ultralytics.com/modes/predict/'},{t:'COCO class list',u:'https://gist.github.com/AruniRC/7b3dadd004da04c80198557db5da4bda'}]},
+  { week:'Week 11 — OpenCV + YOLO Basics', day:'Day 4', title:'Download match clip + detect players in video',   desc:'Use yt-dlp to download a 2-minute broadcast clip. Run YOLO on each frame (classes=[0]). Draw boxes on output video.', links:[{t:'yt-dlp GitHub',u:'https://github.com/yt-dlp/yt-dlp'},{t:'Football CV Tutorial',u:'https://www.youtube.com/watch?v=WgPbbWmnXJ8'}]},
+  { week:'Week 11 — OpenCV + YOLO Basics', day:'Day 5', title:'Extract player crops + display bounding box info',  desc:'For each detection, crop the player from the frame. Print: box coords, center point, confidence score.', links:[{t:'YOLOv8 Object Tracking',u:'https://docs.ultralytics.com/modes/track/'}]},
+  { week:'Week 12 — Team Classification + Pitch Mapping', day:'Day 6', title:'Extract jersey color from player crop',  desc:'Crop top 40% of each bbox (jersey area). Convert to pixel array. Filter out very dark/light pixels.', links:[{t:'OpenCV color spaces',u:'https://docs.opencv.org/4.x/df/d9d/tutorial_py_colorspaces.html'}]},
+  { week:'Week 12 — Team Classification + Pitch Mapping', day:'Day 7', title:'K-Means team classification',          desc:'Collect all jersey colors per frame. Run KMeans(n_clusters=2) on them. Assign team 0 or 1 to each player.', links:[{t:'K-Means sklearn',u:'https://scikit-learn.org/stable/modules/generated/sklearn.cluster.KMeans.html'}]},
+  { week:'Week 12 — Team Classification + Pitch Mapping', day:'Day 8', title:'Draw a 2D pitch canvas in OpenCV',     desc:'Create a green numpy canvas (900×600). Draw white lines for pitch markings: outline, halfway, center circle, penalty boxes.', links:[{t:'mplsoccer Pitch',u:'https://mplsoccer.readthedocs.io/en/latest/gallery/pitch_plots/plot_pitch.html'}]},
+  { week:'Week 12 — Team Classification + Pitch Mapping', day:'Day 9', title:'Manual homography — pick 4 reference points', desc:'Open your video in VLC. Pause on frame. Note pixel coords of 4 pitch markings (corner, penalty box corners). Map to standard pitch coords.', links:[{t:'OpenCV Homography Tutorial',u:'https://docs.opencv.org/4.x/d9/dab/tutorial_homography.html'},{t:'Homography explained',u:'https://www.youtube.com/watch?v=5Fzg-RKLYOU'}]},
+  { week:'Week 12 — Team Classification + Pitch Mapping', day:'Day 10', title:'Apply homography — map players to pitch view', desc:'H, _ = cv2.findHomography(src, dst). For each player foot position, apply perspectiveTransform. Draw dot on 2D pitch.', links:[{t:'cv2.perspectiveTransform',u:'https://docs.opencv.org/4.x/da/d6e/tutorial_py_geometric_transformations.html'}]},
+  { week:'Week 13 — Heatmaps + Formation', day:'Day 11', title:'Accumulate positions across all frames',           desc:'Sample every 5th frame. Append each player\'s mapped pitch position to team0_positions and team1_positions lists.', links:[]},
+  { week:'Week 13 — Heatmaps + Formation', day:'Day 12', title:'Generate Gaussian heatmap per team',               desc:'Create zero numpy array (pitch size). Add 1 at each player position. Apply gaussian_filter(sigma=25). Normalize.', links:[{t:'Scipy Gaussian Filter',u:'https://docs.scipy.org/doc/scipy/reference/generated/scipy.ndimage.gaussian_filter.html'}]},
+  { week:'Week 13 — Heatmaps + Formation', day:'Day 13', title:'Overlay heatmap on pitch, compare both teams',     desc:'plt.imshow(heatmap, cmap="hot", alpha=0.7) over the pitch image. Side by side for both teams using subplot.', links:[{t:'Matplotlib imshow',u:'https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.imshow.html'}]},
+  { week:'Week 13 — Heatmaps + Formation', day:'Day 14', title:'Formation detection with K-Means on y-positions',  desc:'Cluster player y-positions into 3–4 groups. Sort by depth. Count players per cluster → formation string "4-3-3".', links:[{t:'K-Means docs',u:'https://scikit-learn.org/stable/modules/clustering.html#k-means'}]},
+  { week:'Week 13 — Heatmaps + Formation', day:'Day 15', title:'Compute defensive line depth + pressing stats',    desc:'Defensive line = avg y of 4 deepest outfield players. Pressing intensity = how far up the pitch team defends.', links:[{t:'SoccerNet Dataset',u:'https://www.soccer-net.org/data'}]},
+  { week:'Week 14–16 — App + Deploy', day:'Day 16', title:'Build Streamlit app skeleton — file upload + display', desc:'st.file_uploader for MP4. Save to tempfile. Display first frame. Show a "Analyze" button.', links:[{t:'Streamlit file_uploader',u:'https://docs.streamlit.io/develop/api-reference/widgets/st.file_uploader'},{t:'Streamlit Docs',u:'https://docs.streamlit.io/'}]},
+  { week:'Week 14–16 — App + Deploy', day:'Day 17', title:'Wire up full pipeline to Streamlit app',                desc:'On button click: run detection → classify teams → map to pitch → generate heatmaps → detect formation. Show progress bar.', links:[{t:'st.progress',u:'https://docs.streamlit.io/develop/api-reference/status/st.progress'},{t:'st.spinner',u:'https://docs.streamlit.io/develop/api-reference/status/st.spinner'}]},
+  { week:'Week 14–16 — App + Deploy', day:'Day 18', title:'Layout — bird\'s-eye + heatmaps side by side',          desc:'Use st.columns(2). Left: Team A heatmap. Right: Team B heatmap. Below: bird\'s-eye positional map. Add formation metrics.', links:[{t:'Streamlit columns',u:'https://docs.streamlit.io/develop/api-reference/layout/st.columns'}]},
+  { week:'Week 14–16 — App + Deploy', day:'Day 19', title:'Record 60-second demo video with OBS',                  desc:'Record the app in action: upload clip → processing → results appear. Convert to GIF for README. This is your wow moment.', links:[{t:'OBS Screen Recorder',u:'https://obsproject.com/'},{t:'Video to GIF',u:'https://ezgif.com/video-to-gif'}]},
+  { week:'Week 14–16 — App + Deploy', day:'Day 20', title:'Write README with demo GIF + push to GitHub',           desc:'README must include the demo GIF, pipeline diagram, formation results screenshot. Detailed README = serious project.', links:[{t:'GitHub README guide',u:'https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-readmes'}]},
+  { week:'Week 14–16 — App + Deploy', day:'Day 21', title:'Deploy app — try Streamlit Cloud or HuggingFace Spaces', desc:'Streamlit Cloud if under 1GB. HuggingFace Spaces (free GPU) if you need more compute for YOLO.', links:[{t:'Streamlit Cloud',u:'https://share.streamlit.io/'},{t:'HuggingFace Spaces',u:'https://huggingface.co/spaces'}]},
+  { week:'Week 14–16 — App + Deploy', day:'Day 22', title:'Post on LinkedIn — demo video will get noticed',        desc:'The demo GIF/video is your differentiator. Post it. "I built a football tactics analyzer using YOLOv8..." Tag #ComputerVision.', links:[{t:'LinkedIn',u:'https://www.linkedin.com/'}]},
+  { week:'Week 14–16 — App + Deploy', day:'Day 23', title:'Prepare 3-minute project pitch for interviews',         desc:'Practice: what it does, YOLOv8 + homography + K-Means pipeline, biggest challenge (jersey color edge case), results.', links:[{t:'STAR method',u:'https://www.youtube.com/watch?v=yz79ZPU2c3A'}]},
+  { week:'Week 14–16 — App + Deploy', day:'Day 24', title:'Finalize resume bullet + code cleanup',                 desc:'"Built football tactics analyzer using YOLOv8 player detection, K-Means team classification, and homographic pitch mapping. Deployed live." + URL.', links:[{t:'Resume Worded',u:'https://resumeworded.com/'}]},
+  { week:'Week 14–16 — App + Deploy', day:'Day 25', title:'All 3 projects done — final portfolio review ✓ 🎉',     desc:'All 3 live. Resume updated. LinkedIn active. DSA 100+ problems. You are placement-ready. Now apply everywhere.', links:[{t:'Apply — LinkedIn Jobs',u:'https://www.linkedin.com/jobs/'},{t:'Apply — Naukri',u:'https://www.naukri.com/'},{t:'Apply — Instahyre',u:'https://www.instahyre.com/'}]},
+];
+
+// ─────────────────────────────────────────────
+// RENDER
+// ─────────────────────────────────────────────
+
+function checkSVG() {
+  return `<svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+}
+
+function renderDays(containerId, days, phase) {
+  const container = document.getElementById(containerId);
+  const groups = {};
+  days.forEach((d, i) => {
+    if (!groups[d.week]) groups[d.week] = [];
+    groups[d.week].push({...d, idx: i});
+  });
+
+  let html = '';
+  Object.entries(groups).forEach(([week, wdays], gi) => {
+    const doneCount = wdays.filter(d => saved[`${phase}_${d.idx}`]).length;
+    const isOpen = gi === 0; // first week open by default
+    html += `<div class="week-group">
+      <button class="week-toggle-btn${isOpen?' open':''}" onclick="toggleWeek(this)">
+        <span class="wk-label">${week}</span>
+        <span class="wk-count">${doneCount}/${wdays.length} done</span>
+        <span class="wk-chevron">▶</span>
+      </button>
+      <div class="week-days${isOpen?' open':''}">`;
+    wdays.forEach(d => {
+      const id = `${phase}_${d.idx}`;
+      const done = saved[id] ? ' done' : '';
+      const linksHtml = d.links.map(l => `<a href="${l.u}" target="_blank" rel="noopener">${l.t}</a>`).join('');
+      html += `<div class="day-card${done}" id="${id}" onclick="toggleDay('${id}','${phase}')">
+        <div class="day-inner">
+          <div class="day-accent"></div>
+          <div class="day-body">
+            <div class="day-header">
+              <span class="day-num">${d.day}</span>
+              <span class="day-title">${d.title}</span>
+              <div class="day-check">${checkSVG()}</div>
+            </div>
+            <div class="day-desc">${d.desc}</div>
+            ${linksHtml ? `<div class="day-links">${linksHtml}</div>` : ''}
+          </div>
+        </div>
+      </div>`;
+    });
+    html += `</div></div>`;
+  });
+  container.innerHTML = html;
+}
+
+function toggleWeek(btn) {
+  const open = btn.classList.toggle('open');
+  btn.nextElementSibling.classList.toggle('open', open);
+}
+
+function toggleDay(id, phase) {
+  if (event.target.tagName === 'A') return;
+  const el = document.getElementById(id);
+  const done = el.classList.toggle('done');
+  saved[id] = done;
+  try { localStorage.setItem(KEY, JSON.stringify(saved)); } catch(e) {}
+  updateAll();
+  updateWeekCounts(phase);
+  showToast(done ? '✓ Day complete' : 'Day unmarked');
+}
+
+function updateWeekCounts(phase) {
+  const phaseData = {p1: dsaDays, p2: xgDays, p3: transferDays, p4: cvDays};
+  const days = phaseData[phase];
+  const phaseEl = document.getElementById('phase-' + phase);
+  if (!phaseEl) return;
+  const groups = {};
+  days.forEach((d,i) => { if (!groups[d.week]) groups[d.week]=[]; groups[d.week].push(i); });
+  phaseEl.querySelectorAll('.week-toggle-btn').forEach((btn, gi) => {
+    const wk = Object.keys(groups)[gi];
+    if (!wk) return;
+    const idxs = groups[wk];
+    const done = idxs.filter(i => saved[`${phase}_${i}`]).length;
+    const countEl = btn.querySelector('.wk-count');
+    if (countEl) countEl.textContent = `${done}/${idxs.length} done`;
+  });
+}
+
+const phaseDayCount = {p1: dsaDays.length, p2: xgDays.length, p3: transferDays.length, p4: cvDays.length};
+const TOTAL_DAYS = Object.values(phaseDayCount).reduce((a,b)=>a+b,0);
+
+function updateAll() {
+  let totalDone = 0;
+  Object.entries(phaseDayCount).forEach(([ph, count]) => {
+    const done = Array.from({length: count}, (_,i) => saved[`${ph}_${i}`]).filter(Boolean).length;
+    const pct = Math.round((done / count) * 100);
+    totalDone += done;
+    const bar = document.getElementById(ph+'-bar'); if(bar) bar.style.width = pct+'%';
+    const lbl = document.getElementById(ph+'-label'); if(lbl) lbl.textContent = `${done} / ${count} days`;
+    const pctEl = document.getElementById(ph+'-pct'); if(pctEl) pctEl.textContent = pct+'%';
+    const nav = document.getElementById(ph+'-navpct'); if(nav) nav.textContent = pct+'%';
+  });
+  const pct = Math.round((totalDone / TOTAL_DAYS) * 100);
+  const CIRC = 2 * Math.PI * 42; // r=42 → ~264
+  const hdrDone = document.getElementById('hdr-done'); if(hdrDone) hdrDone.textContent = totalDone;
+  const opEl = document.getElementById('overall-pct'); if(opEl) opEl.textContent = pct+'%';
+  const ring = document.getElementById('overall-ring');
+  if (ring) ring.style.strokeDashoffset = CIRC - (pct / 100) * CIRC;
+  const wkEl = document.getElementById('weeks-count'); if(wkEl) wkEl.textContent = totalDone + ' / ' + TOTAL_DAYS + ' days';
+
+  // Streak calculation
+  const allKeys = [...Array.from({length:dsaDays.length},(_,i)=>`p1_${i}`),
+                   ...Array.from({length:xgDays.length},(_,i)=>`p2_${i}`),
+                   ...Array.from({length:transferDays.length},(_,i)=>`p3_${i}`),
+                   ...Array.from({length:cvDays.length},(_,i)=>`p4_${i}`)];
+  let streak = 0;
+  for (let i = allKeys.length - 1; i >= 0; i--) {
+    if (saved[allKeys[i]]) streak++; else break;
+  }
+  const hdrStreak = document.getElementById('hdr-streak'); if(hdrStreak) hdrStreak.textContent = streak;
+  const banner = document.getElementById('streak-banner');
+  const msg = document.getElementById('streak-msg');
+  if (streak >= 3 && banner && msg) {
+    banner.style.display = 'flex';
+    msg.textContent = `🔥 ${streak}-day streak! You're on fire.`;
+  } else if (banner) {
+    banner.style.display = 'none';
+  }
+}
+
+function switchPhase(id) {
+  document.querySelectorAll('.phase-content').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.phase-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('phase-'+id).classList.add('active');
+  document.querySelector(`[data-phase="${id}"]`).classList.add('active');
+}
+
+function resetAll() {
+  if (!confirm('Reset all progress? This cannot be undone.')) return;
+  saved = {};
+  try { localStorage.removeItem(KEY); } catch(e) {}
+  document.querySelectorAll('.day-card').forEach(el => el.classList.remove('done'));
+  updateAll();
+  ['p1','p2','p3','p4'].forEach(updateWeekCounts);
+  showToast('Progress reset');
+}
+
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+// ─── THEME ───
+function toggleTheme() {
+  const isDark = document.documentElement.classList.toggle('dark');
+  localStorage.setItem('xg_theme', isDark ? 'dark' : 'light');
+  const lbl = document.getElementById('theme-lbl');
+  const knob = document.getElementById('theme-knob');
+  if (lbl) lbl.textContent = isDark ? 'Dark' : 'Light';
+  if (knob) knob.textContent = isDark ? '☾' : '☀';
+}
+
+// Apply saved theme on load
+(function() {
+  const t = localStorage.getItem('xg_theme');
+  if (t === 'dark') {
+    document.documentElement.classList.add('dark');
+    const lbl = document.getElementById('theme-lbl');
+    const knob = document.getElementById('theme-knob');
+    if (lbl) lbl.textContent = 'Dark';
+    if (knob) knob.textContent = '☾';
+  }
+})();
+
+// ─── INIT ───
+renderDays('p1-days', dsaDays, 'p1');
+renderDays('p2-days', xgDays, 'p2');
+renderDays('p3-days', transferDays, 'p3');
+renderDays('p4-days', cvDays, 'p4');
+
+// Apply saved state
+Object.entries(saved).forEach(([id, v]) => { if(v) document.getElementById(id)?.classList.add('done'); });
+updateAll();
+['p1','p2','p3','p4'].forEach(updateWeekCounts);
+</script>
+</body>
+</html>

@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Project Roadmap — xG Placement</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f5f3ee;
+    --ink: #0f0f0d;
+    --mid: #6b6860;
+    --dim: #b0ada6;
+    --rule: #d8d5ce;
+    --mint: #0d8a4e;
+    --mint-lt: #e6f5ec;
+    --orange: #b84500;
+    --orange-lt: #fdf0e8;
+    --violet: #5b2fa8;
+    --violet-lt: #f0ebfd;
+    --grid-line: rgba(0,0,0,0.022);
+    /* Updated for contrast in Light Mode */
+    --dsa-bg: #ffffff;
+    --dsa-text: var(--ink);
+    --dsa-banner-bg-label: var(--bg);
+    --dsa-step-border: var(--rule);
+    --dsa-step-text: var(--mid);
+  }
+  [data-theme="dark"] {
+    --bg: #111110;
+    --ink: #f0ede6;
+    --mid: #9e9b94;
+    --dim: #5a5853;
+    --rule: #2c2b28;
+    --mint: #1ec76a;
+    --mint-lt: #0c2218;
+    --orange: #e06828;
+    --orange-lt: #271508;
+    --violet: #9678e0;
+    --violet-lt: #1c1230;
+    --grid-line: rgba(255,255,255,0.025);
+    --dsa-bg: #1c1c1a;
+    --dsa-text: #f0ede6;
+    --dsa-banner-bg-label: #111110;
+    --dsa-step-border: rgba(255,255,255,0.15);
+    --dsa-step-text: rgba(255,255,255,0.55);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100vh;
+  }
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(var(--grid-line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+    background-size: 32px 32px;
+    pointer-events: none; z-index: 0;
+  }
+
+  /* ── MASTHEAD ── */
+  .masthead {
+    position: relative; z-index: 1;
+    border-bottom: 2px solid var(--ink);
+    padding: 22px 48px 18px;
+    display: flex; align-items: baseline;
+    justify-content: space-between; flex-wrap: wrap; gap: 10px;
+  }
+  .masthead-left { display: flex; align-items: baseline; gap: 18px; }
+  .pub-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px; font-weight: 800;
+    letter-spacing: .12em; text-transform: uppercase; color: var(--ink);
+  }
+  .pub-issue {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--dim);
+  }
+  .masthead-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px; letter-spacing: .08em; text-transform: uppercase;
+    color: var(--mint); border: 1px solid var(--mint);
+    padding: 3px 10px; border-radius: 2px;
+  }
+
+  /* ── PAGE ── */
+  .page { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; padding: 52px 48px 80px; }
+
+  /* ── HERO ── */
+  .hero {
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 36px; margin-bottom: 44px;
+    display: grid; grid-template-columns: 1fr auto; gap: 32px; align-items: end;
+  }
+  .kicker {
+    font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--mint); margin-bottom: 14px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .kicker::before { content: ''; width: 28px; height: 1px; background: var(--mint); }
+  .headline {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(40px, 6vw, 72px); font-weight: 800;
+    line-height: .92; letter-spacing: -.03em; color: var(--ink);
+  }
+  .headline em {
+    font-style: italic; font-family: 'DM Sans', sans-serif;
+    font-weight: 300; letter-spacing: -.02em; color: var(--mid);
+  }
+  .standfirst {
+    font-size: 14px; color: var(--mid); line-height: 1.7;
+    max-width: 400px; font-style: italic; margin-top: 16px;
+  }
+  .hero-meta { text-align: right; }
+  .big-num {
+    font-family: 'Syne', sans-serif; font-size: 88px; font-weight: 800;
+    line-height: 1; color: var(--rule); letter-spacing: -.04em;
+  }
+  .big-num-sub {
+    font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: .1em;
+    text-transform: uppercase; color: var(--dim); margin-top: 4px;
+  }
+
+  /* ── DSA BANNER ── */
+  .dsa-banner {
+    border: 1.5px solid var(--ink); padding: 18px 24px; margin-bottom: 44px;
+    display: flex; align-items: flex-start; gap: 18px;
+    background: var(--dsa-bg); color: var(--dsa-text); position: relative;
+  }
+  .dsa-banner::before {
+    content: 'Running in parallel every single day';
+    position: absolute; top: -8px; left: 18px;
+    font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: .12em;
+    text-transform: uppercase; background: var(--dsa-banner-bg-label); color: var(--dim); padding: 0 8px;
+  }
+  .dsa-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+  .dsa-title {
+    font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700;
+    color: var(--dsa-text); margin-bottom: 8px; letter-spacing: .01em;
+  }
+  .dsa-steps { display: flex; flex-wrap: wrap; gap: 5px; }
+  .dsa-step {
+    font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: .06em;
+    text-transform: uppercase; padding: 3px 9px;
+    /* Uses new dynamic variables */
+    border: 1px solid var(--dsa-step-border); color: var(--dsa-step-text);
+    border-radius: 2px;
+  }
+
+  /* ── SECTION RULE ── */
+  .section-rule {
+    display: flex; align-items: center; gap: 14px; margin-bottom: 32px;
+  }
+  .section-rule span {
+    font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--dim); white-space: nowrap;
+  }
+  .section-rule::after { content: ''; flex: 1; height: 1px; background: var(--rule); }
+
+  /* ── PROJECTS ── */
+  .projects { display: flex; flex-direction: column; }
+  .project {
+    display: grid; grid-template-columns: 80px 1fr;
+    border-top: 1px solid var(--rule); padding: 32px 0; gap: 32px;
+  }
+  .project:last-child { border-bottom: 1px solid var(--rule); }
+
+  .proj-num-col { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; padding-top: 2px; }
+  .proj-num {
+    font-family: 'Syne', sans-serif; font-size: 52px; font-weight: 800;
+    line-height: 1; letter-spacing: -.04em;
+  }
+  .p1 .proj-num { color: var(--mint); }
+  .p2 .proj-num { color: var(--orange); }
+  .p3 .proj-num { color: var(--violet); }
+  .proj-num-label {
+    font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: .1em;
+    text-transform: uppercase; color: var(--dim);
+    writing-mode: vertical-rl; transform: rotate(180deg); height: 56px;
+  }
+
+  .proj-content {}
+  .proj-header {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    gap: 16px; margin-bottom: 14px; flex-wrap: wrap;
+  }
+  .proj-meta-top {
+    font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: .1em;
+    text-transform: uppercase; margin-bottom: 5px;
+  }
+  .p1 .proj-meta-top { color: var(--mint); }
+  .p2 .proj-meta-top { color: var(--orange); }
+  .p3 .proj-meta-top { color: var(--violet); }
+
+  .proj-title {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(22px, 3vw, 30px); font-weight: 800;
+    letter-spacing: -.02em; color: var(--ink); line-height: 1.05;
+  }
+  .proj-difficulty {
+    font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: .08em;
+    text-transform: uppercase; padding: 4px 12px; border-radius: 2px;
+    flex-shrink: 0; margin-top: 4px; border: 1px solid;
+  }
+  .p1 .proj-difficulty { color: var(--mint); border-color: var(--mint); background: var(--mint-lt); }
+  .p2 .proj-difficulty { color: var(--orange); border-color: var(--orange); background: var(--orange-lt); }
+  .p3 .proj-difficulty { color: var(--violet); border-color: var(--violet); background: var(--violet-lt); }
+
+  .proj-body { display: grid; grid-template-columns: 1fr 210px; gap: 28px; align-items: start; }
+  .proj-desc { font-size: 13.5px; color: var(--mid); line-height: 1.72; margin-bottom: 14px; }
+  .proj-accent {
+    font-size: 11.5px; font-style: italic; color: var(--dim); line-height: 1.6;
+    border-left: 2px solid var(--rule); padding-left: 12px; margin-bottom: 16px;
+  }
+  .p1 .proj-accent { border-color: var(--mint); color: var(--mint); }
+  .p2 .proj-accent { border-color: var(--orange); color: var(--orange); }
+  .p3 .proj-accent { border-color: var(--violet); color: var(--violet); }
+
+  .proj-stack { display: flex; flex-wrap: wrap; gap: 5px; }
+  .stack-tag {
+    font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: .05em;
+    padding: 3px 8px; border: 1px solid var(--rule); color: var(--mid); border-radius: 2px;
+  }
+
+  .proj-sidebar {}
+  .sidebar-box { border: 1px solid var(--rule); padding: 12px 14px; margin-bottom: 8px; }
+  .sb-label {
+    font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--dim); margin-bottom: 4px; display: block;
+  }
+  .sb-val { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; color: var(--ink); }
+  .p1 .sb-val.accent { color: var(--mint); }
+  .p2 .sb-val.accent { color: var(--orange); }
+  .p3 .sb-val.accent { color: var(--violet); }
+  .sb-sub { font-size: 11px; color: var(--mid); margin-top: 1px; }
+  .outcome-box { border: 1px dashed var(--rule); padding: 12px 14px; background: rgba(128,128,128,0.06); }
+  .outcome-title {
+    font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: .1em;
+    text-transform: uppercase; color: var(--dim); margin-bottom: 5px;
+  }
+  .outcome-text { font-size: 11px; color: var(--mid); line-height: 1.55; font-style: italic; }
+
+  /* ── FOOTER ── */
+  footer {
+    position: relative; z-index: 1; border-top: 2px solid var(--ink);
+    padding: 18px 48px; display: flex; justify-content: space-between;
+    align-items: center; flex-wrap: wrap; gap: 10px;
+  }
+  .footer-brand {
+    font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 800;
+    letter-spacing: .1em; text-transform: uppercase; color: var(--ink);
+  }
+  .footer-meta {
+    font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--dim);
+  }
+  .dot { color: var(--mint); margin: 0 5px; }
+
+  /* ── DARK MODE TOGGLE ── */
+  .theme-toggle {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px; letter-spacing: .08em; text-transform: uppercase;
+    color: var(--dim); border: 1px solid var(--rule);
+    background: transparent; padding: 4px 12px; border-radius: 2px;
+    cursor: pointer; display: flex; align-items: center; gap: 7px;
+    transition: color .2s, border-color .2s;
+  }
+  .theme-toggle:hover { color: var(--ink); border-color: var(--ink); }
+  .theme-toggle .toggle-icon { font-size: 12px; line-height: 1; }
+
+  html { transition: background .25s, color .25s; }
+  body { transition: background .25s, color .25s; }
+
+  @media (max-width: 700px) {
+    .page { padding: 28px 20px 60px; }
+    .masthead, footer { padding-left: 20px; padding-right: 20px; }
+    .hero { grid-template-columns: 1fr; }
+    .hero-meta { display: none; }
+    .project { grid-template-columns: 52px 1fr; gap: 16px; }
+    .proj-num { font-size: 36px; }
+    .proj-body { grid-template-columns: 1fr; }
+    .proj-sidebar { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <div class="masthead-left">
+    <span class="pub-name">xG Placement</span>
+    <span class="pub-issue">4th Sem IT · 2025 Edition</span>
+  </div>
+  <span class="masthead-tag">Project Roadmap</span>
+  <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+    <span class="toggle-icon" id="toggleIcon">🌙</span>
+    <span id="toggleLabel">Dark</span>
+  </button>
+</div>
+
+<div class="page">
+  <div class="hero">
+    <div>
+      <div class="kicker">What you will build</div>
+      <h1 class="headline">Three projects.<br><em>One obsession.</em></h1>
+      <p class="standfirst">Football meets machine learning. Everything you build over the next four months, in the order you'll build it — from a beginner's first model to a computer vision system that analyses real match footage.</p>
+    </div>
+    <div class="hero-meta">
+      <div class="big-num">3</div>
+      <div class="big-num-sub">Live deployed<br>projects</div>
+    </div>
+  </div>
+
+  <div class="dsa-banner">
+    <span class="dsa-icon">💻</span>
+    <div>
+      <div class="dsa-title">Striver's A2Z DSA — running every single day in parallel</div>
+      <div class="dsa-steps">
+        <span class="dsa-step">Step 1–2 · Basics + Sorting</span>
+        <span class="dsa-step">Step 3–4 · Arrays + Binary Search</span>
+        <span class="dsa-step">Step 5–9 · Strings + LL + Recursion + Stacks</span>
+        <span class="dsa-step">Step 13–15 · Trees + BST + Graphs</span>
+        <span class="dsa-step">Step 16 · Dynamic Programming</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-rule"><span>Build sequence</span></div>
+
+  <div class="projects">
+
+    <div class="project p1">
+      <div class="proj-num-col">
+        <div class="proj-num">01</div>
+        <div class="proj-num-label">Start here</div>
+      </div>
+      <div class="proj-content">
+        <div class="proj-header">
+          <div>
+            <div class="proj-meta-top">Month 1–2 · Project 1</div>
+            <div class="proj-title">⚽ Expected Goals (xG) Model</div>
+          </div>
+          <span class="proj-difficulty">Beginner-friendly</span>
+        </div>
+        <div class="proj-body">
+          <div>
+            <p class="proj-desc">Use real professional shot data from StatsBomb — the same data provider used by FC Barcelona — to train a model that predicts the probability of any shot resulting in a goal. This is the xG metric you see on Sky Sports, built from scratch by you. Add SHAP explainability charts so you can answer "why did this shot have a 0.3 xG?" in an interview. Deploy as a Streamlit app with a player selector and shot map.</p>
+            <p class="proj-accent">"The interesting part was comparing my model's xG against Understat's official numbers for La Liga strikers."</p>
+            <div class="proj-stack">
+              <span class="stack-tag">Python</span><span class="stack-tag">Pandas</span><span class="stack-tag">Scikit-learn</span><span class="stack-tag">XGBoost</span><span class="stack-tag">SHAP</span><span class="stack-tag">mplsoccer</span><span class="stack-tag">Streamlit</span>
+            </div>
+          </div>
+          <div class="proj-sidebar">
+            <div class="sidebar-box">
+              <span class="sb-label">Timeline</span>
+              <div class="sb-val accent">~6 weeks</div>
+              <div class="sb-sub">Weeks 1–6 of the plan</div>
+            </div>
+            <div class="sidebar-box">
+              <span class="sb-label">Target metric</span>
+              <div class="sb-val">AUC > 0.78</div>
+              <div class="sb-sub">vs Understat baseline</div>
+            </div>
+            <div class="outcome-box">
+              <div class="outcome-title">Resume line</div>
+              <div class="outcome-text">"Built xG model on StatsBomb data — XGBoost, AUC 0.81, SHAP explainability, live Streamlit app."</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="project p2">
+      <div class="proj-num-col">
+        <div class="proj-num">02</div>
+        <div class="proj-num-label">Then this</div>
+      </div>
+      <div class="proj-content">
+        <div class="proj-header">
+          <div>
+            <div class="proj-meta-top">Month 2–3 · Project 2</div>
+            <div class="proj-title">💰 Transfer Value Estimator</div>
+          </div>
+          <span class="proj-difficulty">Intermediate</span>
+        </div>
+        <div class="proj-body">
+          <div>
+            <p class="proj-desc">Scrape player market values from Transfermarkt and combine with stats from FBref to predict what any player should be worth. Then layer NLP on top — scrape transfer news headlines and run FinBERT (a finance-tuned BERT model) to detect whether media buzz is positive or negative, and adjust the prediction by up to ±15%. Three distinct skills in one pipeline: scraping, regression, and NLP.</p>
+            <p class="proj-accent">"The name mismatch between Transfermarkt and FBref was a real data engineering problem — I solved it with Python's difflib fuzzy matching."</p>
+            <div class="proj-stack">
+              <span class="stack-tag">BeautifulSoup</span><span class="stack-tag">FBref</span><span class="stack-tag">XGBoost</span><span class="stack-tag">FinBERT</span><span class="stack-tag">HuggingFace</span><span class="stack-tag">SHAP</span><span class="stack-tag">Plotly</span><span class="stack-tag">Streamlit</span>
+            </div>
+          </div>
+          <div class="proj-sidebar">
+            <div class="sidebar-box">
+              <span class="sb-label">Timeline</span>
+              <div class="sb-val accent">~4 weeks</div>
+              <div class="sb-sub">Weeks 7–10 of the plan</div>
+            </div>
+            <div class="sidebar-box">
+              <span class="sb-label">Dataset size</span>
+              <div class="sb-val">500+</div>
+              <div class="sb-sub">Players across leagues</div>
+            </div>
+            <div class="outcome-box">
+              <div class="outcome-title">Resume line</div>
+              <div class="outcome-text">"Scraped 500+ players, XGBoost R²=0.79, FinBERT NLP sentiment adjustment, live on Streamlit."</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="project p3">
+      <div class="proj-num-col">
+        <div class="proj-num">03</div>
+        <div class="proj-num-label">Finale</div>
+      </div>
+      <div class="proj-content">
+        <div class="proj-header">
+          <div>
+            <div class="proj-meta-top">Month 3–4 · Project 3</div>
+            <div class="proj-title">🎥 Football Tactics Analyzer</div>
+          </div>
+          <span class="proj-difficulty">Advanced</span>
+        </div>
+        <div class="proj-body">
+          <div>
+            <p class="proj-desc">Take a real match video clip and run YOLOv8 — the same object detection model used in self-driving cars — to detect every player on the pitch. Classify players into two teams using K-Means clustering on jersey colors. Apply a homography transformation to map all player positions onto a 2D bird's-eye pitch view. Generate movement heatmaps and auto-detect the formation (e.g. "4-3-3"). Record a 60-second demo and post it on LinkedIn — this is the one people stop to watch.</p>
+            <p class="proj-accent">"In the interview, I showed the live demo on my laptop. The interviewer asked me to explain homography. That became a 10-minute conversation."</p>
+            <div class="proj-stack">
+              <span class="stack-tag">YOLOv8</span><span class="stack-tag">OpenCV</span><span class="stack-tag">K-Means</span><span class="stack-tag">Homography</span><span class="stack-tag">Scipy</span><span class="stack-tag">mplsoccer</span><span class="stack-tag">Streamlit</span>
+            </div>
+          </div>
+          <div class="proj-sidebar">
+            <div class="sidebar-box">
+              <span class="sb-label">Timeline</span>
+              <div class="sb-val accent">~6 weeks</div>
+              <div class="sb-sub">Weeks 11–16 of the plan</div>
+            </div>
+            <div class="sidebar-box">
+              <span class="sb-label">Wow factor</span>
+              <div class="sb-val">Highest</div>
+              <div class="sb-sub">Best for demo videos</div>
+            </div>
+            <div class="outcome-box">
+              <div class="outcome-title">Resume line</div>
+              <div class="outcome-text">"YOLOv8 detection, K-Means team classification, homographic pitch mapping, heatmaps + formation detection."</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  <span class="footer-brand">xG Placement<span class="dot">·</span>FC Barcelona Edition</span>
+  <span class="footer-meta">4th Sem IT Engineering <span class="dot">·</span> 2025 <span class="dot">·</span> Built with Claude</span>
+</footer>
+<script>
+  const html = document.documentElement;
+  const btn = document.getElementById('themeToggle');
+  const icon = document.getElementById('toggleIcon');
+  const label = document.getElementById('toggleLabel');
+
+  // Respect system preference on first load
+  const stored = localStorage.getItem('theme');
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  if (stored === 'dark' || (!stored && prefersDark)) {
+    html.setAttribute('data-theme', 'dark');
+    icon.textContent = '☀️';
+    label.textContent = 'Light';
+  }
+
+  btn.addEventListener('click', () => {
+    const isDark = html.getAttribute('data-theme') === 'dark';
+    if (isDark) {
+      html.removeAttribute('data-theme');
+      icon.textContent = '🌙';
+      label.textContent = 'Dark';
+      localStorage.setItem('theme', 'light');
+    } else {
+      html.setAttribute('data-theme', 'dark');
+      icon.textContent = '☀️';
+      label.textContent = 'Light';
+      localStorage.setItem('theme', 'dark');
+    }
+  });
+</script>
+</body>
+</html>
